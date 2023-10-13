@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import { Suspense } from "react";
 
 function App() {
@@ -7,7 +8,9 @@ function App() {
 
   return (
     <Suspense fallback={<div>"Loading..."</div>}>
-      <button>Request</button>
+      <Box>
+        <button>Request</button>
+      </Box>
     </Suspense>
   );
 }
