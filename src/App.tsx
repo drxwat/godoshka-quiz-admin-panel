@@ -1,16 +1,16 @@
-import { Box } from "@mui/material";
+import { Session } from "@supabase/supabase-js";
 import { Suspense } from "react";
+import { Outlet, useLoaderData } from "react-router";
+import { AuthProvider } from "./core/auth/auth.provider";
 
 function App() {
-  // const email = import.meta.env.VITE_USER_EMAIL;
-  // const password = import.meta.env.VITE_SUPABASE_PUBLIC_KEY;
-  // const client = await buildClient(email, password);
+  const session = useLoaderData() as Session | undefined;
 
   return (
     <Suspense fallback={<div>"Loading..."</div>}>
-      <Box>
-        <button>Request</button>
-      </Box>
+      <AuthProvider session={session}>
+        <Outlet />
+      </AuthProvider>
     </Suspense>
   );
 }
