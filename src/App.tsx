@@ -1,7 +1,7 @@
-import { ModulesTable } from "./Components/tables/modules.table";
+import { ModalScreen } from "./Components/modal.screen";
 
 function App() {
-    return <ModulesTable />;
+    return <ModalScreen />;
 }
 
 export default App;
