@@ -2,8 +2,8 @@ import { Route, createRoutesFromElements } from "react-router";
 import App from "../App";
 import { ProtectedRoute } from "./protected.route";
 import { client } from "./client/client";
-import { DummyAuth } from "../components/dummy_auth/dummy.auth";
-import { ModulesTable } from "../components/tables/modules.table";
+import { DummyAuth } from "../Components/dummy_auth/dummy.auth";
+import { ModulesTable } from "../Components/tables/modules.table";
 
 export const routes = createRoutesFromElements(
   <Route
