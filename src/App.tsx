@@ -1,7 +1,7 @@
-import { LoginForm } from "./Components/Forms/login.tsx";
+import { ModulesTable } from "./Components/tables/modules.table";
 
 function App() {
-    return <LoginForm />;
+    return <ModulesTable />;
 }
 
 export default App;
