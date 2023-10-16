@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+env:
+  VITE_SUPABASE_PROJECT_URL: ${{ secrets.VITE_SUPABASE_PROJECT_URL }}
+  VITE_SUPABASE_PUBLIC_KEY: ${{ secrets.VITE_SUPABASE_PUBLIC_KEY }}
+  VITE_TEST_VAR: true
+
 jobs:
   build:
     name: Build
@@ -13,9 +18,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-        env:
-          VITE_SUPABASE_PROJECT_URL: ${{ secrets.VITE_SUPABASE_PROJECT_URL }}
-          VITE_SUPABASE_PUBLIC_KEY: ${{ secrets.VITE_SUPABASE_PUBLIC_KEY }}
 
       - name: Setup Node
         uses: actions/setup-node@v3
