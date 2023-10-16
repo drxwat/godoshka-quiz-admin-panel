@@ -2,8 +2,8 @@ import { Route, createRoutesFromElements } from "react-router";
 import App from "../App";
 import { ProtectedRoute } from "./protected.route";
 import { client } from "./client/client";
-import { DummyAuth } from "../Components/dummy_auth/dummy.auth";
 import { ModulesTable } from "../Components/tables/modules.table";
+import { LoginForm } from "../Components/Forms/login";
 
 export const routes = createRoutesFromElements(
   <Route
@@ -12,7 +12,7 @@ export const routes = createRoutesFromElements(
       return client.auth.getSession().then(({ data }) => data.session);
     }}
   >
-    <Route path="/auth" element={<DummyAuth />} />
+    <Route path="/auth" element={<LoginForm />} />
     <Route
       path="/"
       element={
