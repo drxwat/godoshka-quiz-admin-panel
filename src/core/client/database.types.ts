@@ -61,7 +61,7 @@ export interface Database {
             columns: ["module_id"];
             referencedRelation: "modules";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       scores: {
@@ -95,7 +95,7 @@ export interface Database {
             columns: ["module_id"];
             referencedRelation: "modules";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
     };

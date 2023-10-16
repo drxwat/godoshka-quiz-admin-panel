@@ -21,5 +21,5 @@ export const routes = createRoutesFromElements(
         </ProtectedRoute>
       }
     />
-  </Route>
+  </Route>,
 );
