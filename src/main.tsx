@@ -1,10 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import { routes } from "./core/routes";
 
-const router = createBrowserRouter(routes, {
-  basename: import.meta.env.BASE_URL,
+const router = createHashRouter(routes, {
+  // basename: import.meta.env.BASE_URL,
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
