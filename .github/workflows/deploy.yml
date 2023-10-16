@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-env:
-  VITE_SUPABASE_PROJECT_URL: ${{ secrets.VITE_SUPABASE_PROJECT_URL }}
-  VITE_SUPABASE_PUBLIC_KEY: ${{ secrets.VITE_SUPABASE_PUBLIC_KEY }}
 
 jobs:
   build:
@@ -14,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Setup env vars
+        env:
+          VITE_SUPABASE_PROJECT_URL: ${{ secrets.VITE_SUPABASE_PROJECT_URL }}
+          VITE_SUPABASE_PUBLIC_KEY: ${{ secrets.VITE_SUPABASE_PUBLIC_KEY }}
       - name: Checkout repo
         uses: actions/checkout@v3
 
