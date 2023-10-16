@@ -5,54 +5,10 @@ import {
   TableRow,
   TableCell,
 } from "@mui/material";
-
-interface IModules {
-  id: number;
-  created: string;
-  updated: string;
-  name: string;
-  description: string;
-}
-
-const modulesArr: IModules[] = [
-  {
-    id: 1,
-    created: "yesterday",
-    updated: "today",
-    name: "modules",
-    description: "Lorem ipsum dolor sit amet.",
-  },
-  {
-    id: 2,
-    created: "yesterday",
-    updated: "today",
-    name: "modules",
-    description: "Lorem ipsum dolor sit amet.",
-  },
-  {
-    id: 3,
-    created: "yesterday",
-    updated: "today",
-    name: "modules",
-    description: "Lorem ipsum dolor sit amet.",
-  },
-  {
-    id: 4,
-    created: "yesterday",
-    updated: "today",
-    name: "modules",
-    description: "Lorem ipsum dolor sit amet.",
-  },
-  {
-    id: 5,
-    created: "yesterday",
-    updated: "today",
-    name: "modules",
-    description: "Lorem ipsum dolor sit amet.",
-  },
-];
+import { useModules } from "../../hooks/useModules";
 
 export const ModulesTable = () => {
+  const { modules } = useModules();
   return (
     <Table>
       <TableHead>
@@ -65,11 +21,11 @@ export const ModulesTable = () => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {modulesArr.map((module) => (
+        {modules.map((module) => (
           <TableRow key={module.id}>
             <TableCell>{module.id}</TableCell>
-            <TableCell>{module.created}</TableCell>
-            <TableCell>{module.updated}</TableCell>
+            <TableCell>{module.created_at}</TableCell>
+            <TableCell>{module.updated_at}</TableCell>
             <TableCell>{module.name}</TableCell>
             <TableCell>{module.description}</TableCell>
           </TableRow>
