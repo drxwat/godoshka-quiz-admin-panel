@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./protected.route";
 import { client } from "./client/client";
 import { ModulesTable } from "../Components/tables/modules.table";
 import { LoginForm } from "../Components/Forms/login";
+import { NavigationPanel } from "../Components/navigation";
 
 export const routes = createRoutesFromElements(
   <Route
@@ -17,6 +18,7 @@ export const routes = createRoutesFromElements(
       path="/"
       element={
         <ProtectedRoute>
+          <NavigationPanel />
           <ModulesTable />
         </ProtectedRoute>
       }
