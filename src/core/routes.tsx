@@ -5,6 +5,7 @@ import { client } from "./client/client";
 import { ModulesTable } from "../Components/tables/modules.table";
 import { LoginForm } from "../Components/Forms/login";
 import { NavigationPanel } from "../Components/navigation";
+import { AddModulesForm } from "../Components/Forms/add.modules";
 
 export const routes = createRoutesFromElements(
   <Route
@@ -18,6 +19,7 @@ export const routes = createRoutesFromElements(
       path="/"
       element={
         <ProtectedRoute>
+          <AddModulesForm />
           <NavigationPanel />
           <ModulesTable />
         </ProtectedRoute>

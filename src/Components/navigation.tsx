@@ -7,7 +7,12 @@ export const NavigationPanel = () => {
   const logout = useAuth();
 
   return (
-    <Box>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-around",
+      }}
+    >
       <Typography>Привет, {email}</Typography>
       <Button onClick={() => logout.signOut()}>Выйти</Button>
     </Box>
