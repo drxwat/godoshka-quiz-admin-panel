@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { useAuth } from "../../core/auth/useAuth";
+import { useNavigate } from "react-router";
 import {
   FormControl,
   FormLabel,
@@ -52,18 +55,48 @@ const ButtonStyle = {
 };
 
 export const LoginForm = () => {
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  const signIn = async (email: string, password: string) => {
+    const result = await auth.signIn(email ?? "", password ?? "");
+    if (result.data.session) {
+      setTimeout(() => navigate("/"));
+    }
+  };
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handlerChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value);
+  };
+  const handlerChangePassword = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setPassword(event.target.value);
+  };
+
   return (
     <FormContainer>
-      <StyledForm>
+      <StyledForm
+        onSubmit={(event) => {
+          event.preventDefault();
+          signIn(email, password);
+        }}
+      >
         <FormLabel sx={FormLabelStyle}>Welcome Back</FormLabel>
 
         <FormControl sx={FormControlStyle}>
           <InputLabel htmlFor="email_input">Email</InputLabel>
-          <Input id="email_input" type="email" />
+          <Input id="email_input" type="email" onChange={handlerChangeEmail} />
         </FormControl>
         <FormControl sx={FormControlStyle}>
           <InputLabel htmlFor="password_input">Password</InputLabel>
-          <Input id="password_input" type="password" />
+          <Input
+            id="password_input"
+            type="password"
+            onChange={handlerChangePassword}
+          />
         </FormControl>
         <FormHelperText
           id="login_form_helper-text"
