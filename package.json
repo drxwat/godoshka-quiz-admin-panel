@@ -40,6 +40,9 @@
     "vite": "^4.4.5"
   },
   "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "eslint --fix . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+      "prettier --write --ignore-unknown"
+    ]
   }
 }
