@@ -17,7 +17,7 @@ export const DummyAuth = () => {
           onClick={async () => {
             const result = await auth.signIn(
               import.meta.env.VITE_USER_EMAIL ?? "",
-              import.meta.env.VITE_USER_PASSWORD ?? ""
+              import.meta.env.VITE_USER_PASSWORD ?? "",
             );
             if (result.data.session) {
               setTimeout(() => navigate("/"));
