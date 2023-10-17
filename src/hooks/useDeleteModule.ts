@@ -11,7 +11,9 @@ export const useDeleteModule = () => {
           .from("modules")
           .delete()
           .eq("id", moduleIdToDelete);
-        console.log(error);
+        if (error) {
+          console.log(error);
+        }
       }
       setModuleIdToDelete(-1);
       setConfirmOpen(false);
