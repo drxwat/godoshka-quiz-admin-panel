@@ -12,11 +12,23 @@ import { AddModulesForm } from "../Forms/add.modules";
 import { useDeleteModule } from "../../hooks/useDeleteModule";
 import { useState } from "react";
 import { Confirm } from "../Forms/confirm";
+import { UpdateModules } from "../Forms/update.modules";
+import { useUpdateModule } from "../../hooks/useUpdateModule";
 export const ModulesTable = () => {
   const { confirmOpen, setConfirmOpen, setModuleIdToDelete, handleDelete } =
     useDeleteModule();
-  const { modules } = useModules();
+  const { modules, refreshModules } = useModules();
   const [open, setOpen] = useState(false);
+  const {
+    updateOpen,
+    setUpdateOpen,
+    updateName,
+    setUpdateName,
+    updateDescription,
+    setUpdateDescription,
+    handleUpdate,
+    setModuleIdToUpdate,
+  } = useUpdateModule();
 
   const handleOpen = () => {
     setOpen(true);
@@ -28,11 +40,30 @@ export const ModulesTable = () => {
 
   return (
     <Box>
-      <AddModulesForm open={open} handleClose={handleClose} />;
+      <AddModulesForm
+        open={open}
+        handleClose={handleClose}
+        refreshModules={refreshModules}
+      />
       <Confirm
         open={confirmOpen}
         handleClose={() => setConfirmOpen(false)}
-        handleConfirm={handleDelete}
+        handleConfirm={async () => {
+          await handleDelete();
+          refreshModules();
+        }}
+      />
+      <UpdateModules
+        open={updateOpen}
+        handleClose={() => setUpdateOpen(false)}
+        updateName={updateName}
+        updateDescription={updateDescription}
+        handleUpdate={async () => {
+          await handleUpdate();
+          refreshModules();
+        }}
+        setUpdateName={setUpdateName}
+        setUpdateDescription={setUpdateDescription}
       />
       <Table>
         <TableHead>
@@ -76,6 +107,12 @@ export const ModulesTable = () => {
                 <Button
                   sx={{
                     width: "33%",
+                  }}
+                  onClick={() => {
+                    setModuleIdToUpdate(module.id);
+                    setUpdateName(module.name);
+                    setUpdateDescription(module.description);
+                    setUpdateOpen(true);
                   }}
                 >
                   Изменить

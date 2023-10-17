@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,30 +7,37 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
-import { useAddModule } from "../../hooks/useAddModule";
 
-interface AddModulesFormProps {
+interface UpdateModulesProps {
   open: boolean;
   handleClose: () => void;
-  refreshModules: () => void;
+  handleUpdate: () => void;
+  updateName: string;
+  updateDescription: string | null;
+  setUpdateName: (name: string) => void;
+  setUpdateDescription: (description: string | null) => void;
 }
 
-export const AddModulesForm: React.FC<AddModulesFormProps> = ({
+export const UpdateModules: React.FC<UpdateModulesProps> = ({
   open,
   handleClose,
-  refreshModules,
+  handleUpdate,
+  updateName,
+  updateDescription,
+  setUpdateName,
+  setUpdateDescription,
 }) => {
-  const { handleNameChange, handleDescriptionChange, handleSave } =
-    useAddModule();
-
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUpdateName(event.target.value);
+  };
+  const handleDescriptionChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setUpdateDescription(event.target.value);
+  };
   return (
     <Dialog open={open} onClose={handleClose}>
-      <form
-        onSubmit={async () => {
-          await handleSave();
-          await refreshModules();
-        }}
-      >
+      <form onSubmit={handleUpdate}>
         <DialogContent
           sx={{
             display: "flex",
@@ -42,14 +50,19 @@ export const AddModulesForm: React.FC<AddModulesFormProps> = ({
               marginBottom: 2,
             }}
           >
-            Create new module
+            Edit module
           </DialogContentText>
           <TextField
             label="Name"
             sx={{ marginBottom: 1 }}
             onChange={handleNameChange}
+            value={updateName}
           />
-          <TextField label="Description" onChange={handleDescriptionChange} />
+          <TextField
+            label="Description"
+            onChange={handleDescriptionChange}
+            value={updateDescription}
+          />
           <DialogActions>
             <Button color="primary" type="submit" onClick={handleClose}>
               Сохранить
