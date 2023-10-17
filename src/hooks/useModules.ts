@@ -5,20 +5,30 @@ import { client } from "../core/client/client";
 type Row = Database["public"]["Tables"]["modules"]["Row"];
 export const useModules = () => {
   const [modules, setModules] = useState<Row[]>([]);
+  const [fetchingData, setFetchingData] = useState(true);
+
   const getModulesList = async () => {
-    try {
-      const { data } = await client.from("modules").select();
-      if (data) {
-        setModules(data);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        console.log(error.message);
-      }
+    const { data } = await client.from("modules").select();
+    if (data) {
+      setModules(data);
     }
   };
+  const refreshModules = () => {
+    setFetchingData(true);
+  };
   useEffect(() => {
-    getModulesList();
-  }, []);
-  return { modules };
+    if (fetchingData) {
+      try {
+        getModulesList();
+      } catch (error) {
+        if (error instanceof Error) {
+          console.log(error.message);
+        }
+      } finally {
+        setFetchingData(false);
+      }
+    }
+  }, [fetchingData]);
+
+  return { modules, refreshModules };
 };

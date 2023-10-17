@@ -11,18 +11,25 @@ import { useAddModule } from "../../hooks/useAddModule";
 interface AddModulesFormProps {
   open: boolean;
   handleClose: () => void;
+  refreshModules: () => void;
 }
 
 export const AddModulesForm: React.FC<AddModulesFormProps> = ({
   open,
   handleClose,
+  refreshModules,
 }) => {
   const { handleNameChange, handleDescriptionChange, handleSave } =
     useAddModule();
 
   return (
     <Dialog open={open} onClose={handleClose}>
-      <form onSubmit={handleSave}>
+      <form
+        onSubmit={async () => {
+          await handleSave();
+          await refreshModules();
+        }}
+      >
         <DialogContent
           sx={{
             display: "flex",

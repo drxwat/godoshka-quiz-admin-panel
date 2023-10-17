@@ -15,7 +15,7 @@ import { Confirm } from "../Forms/confirm";
 export const ModulesTable = () => {
   const { confirmOpen, setConfirmOpen, setModuleIdToDelete, handleDelete } =
     useDeleteModule();
-  const { modules } = useModules();
+  const { modules, refreshModules } = useModules();
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => {
@@ -28,11 +28,18 @@ export const ModulesTable = () => {
 
   return (
     <Box>
-      <AddModulesForm open={open} handleClose={handleClose} />;
+      <AddModulesForm
+        open={open}
+        handleClose={handleClose}
+        refreshModules={refreshModules}
+      />
       <Confirm
         open={confirmOpen}
         handleClose={() => setConfirmOpen(false)}
-        handleConfirm={handleDelete}
+        handleConfirm={async () => {
+          await handleDelete();
+          refreshModules();
+        }}
       />
       <Table>
         <TableHead>

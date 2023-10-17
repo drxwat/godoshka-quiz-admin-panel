@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { client } from "../core/client/client";
-
 export const useDeleteModule = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [moduleIdToDelete, setModuleIdToDelete] = useState(-1);
