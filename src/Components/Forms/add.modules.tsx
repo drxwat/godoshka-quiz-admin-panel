@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,52 +6,19 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
-import { client } from "../../core/client/client";
+import { useAddModule } from "../../hooks/useAddModule";
 
-export const AddModulesForm = () => {
-  const [open, setOpen] = useState(true);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+interface AddModulesFormProps {
+  open: boolean;
+  handleClose: () => void;
+}
 
-  const handlerName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
-  };
-  const handlerDescription = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDescription(event.target.value);
-  };
-
-  // const handleClickOpen = () => {
-  //   setOpen(true);
-  // };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleSave = async () => {
-    try {
-      const currentDate = new Date().toISOString();
-
-      const dataToInsert = {
-        name: name,
-        description: description,
-        created_at: currentDate,
-      };
-
-      // Вызовите метод insert для вставки данных в таблицу
-      const { error } = await client
-        .from("modules")
-        .insert([dataToInsert])
-        .select();
-      if (error) {
-        console.error("Ошибка при отправке данных:", error);
-      } else {
-        handleClose();
-      }
-    } catch (error) {
-      console.error("Ошибка при сохранении данных:", error);
-    }
-  };
+export const AddModulesForm: React.FC<AddModulesFormProps> = ({
+  open,
+  handleClose,
+}) => {
+  const { handleNameChange, handleDescriptionChange, handleSave } =
+    useAddModule();
 
   return (
     <Dialog open={open} onClose={handleClose}>
@@ -74,11 +40,11 @@ export const AddModulesForm = () => {
           <TextField
             label="Name"
             sx={{ marginBottom: 1 }}
-            onChange={handlerName}
+            onChange={handleNameChange}
           />
-          <TextField label="Description" onChange={handlerDescription} />
+          <TextField label="Description" onChange={handleDescriptionChange} />
           <DialogActions>
-            <Button color="primary" type="submit">
+            <Button color="primary" type="submit" onClick={handleClose}>
               Сохранить
             </Button>
             <Button onClick={handleClose} color="primary">
