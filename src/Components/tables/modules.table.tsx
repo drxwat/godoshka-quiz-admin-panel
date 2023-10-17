@@ -9,11 +9,13 @@ import {
 } from "@mui/material";
 import { useModules } from "../../hooks/useModules";
 import { AddModulesForm } from "../Forms/add.modules";
+import { useDeleteModule } from "../../hooks/useDeleteModule";
 import { useState } from "react";
-
+import { Confirm } from "../Forms/confirm";
 export const ModulesTable = () => {
+  const { confirmOpen, setConfirmOpen, setModuleIdToDelete, handleDelete } =
+    useDeleteModule();
   const { modules } = useModules();
-
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => {
@@ -23,13 +25,18 @@ export const ModulesTable = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
   return (
     <Box>
       <AddModulesForm open={open} handleClose={handleClose} />;
+      <Confirm
+        open={confirmOpen}
+        handleClose={() => setConfirmOpen(false)}
+        handleConfirm={handleDelete}
+      />
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>ID</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Description</TableCell>
             <TableCell>Created</TableCell>
@@ -54,7 +61,6 @@ export const ModulesTable = () => {
         <TableBody>
           {modules.map((module) => (
             <TableRow key={module.id}>
-              <TableCell>{module.id}</TableCell>
               <TableCell>{module.name}</TableCell>
               <TableCell>{module.description}</TableCell>
               <TableCell>{module.created_at}</TableCell>
@@ -77,6 +83,10 @@ export const ModulesTable = () => {
                 <Button
                   sx={{
                     width: "33%",
+                  }}
+                  onClick={() => {
+                    setModuleIdToDelete(module.id);
+                    setConfirmOpen(true);
                   }}
                 >
                   Удалить
