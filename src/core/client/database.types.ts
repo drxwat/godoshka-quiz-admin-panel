@@ -9,11 +9,46 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      "anvers ": {
+        Row: {
+          created_at: string;
+          id: number;
+          is_correct: boolean;
+          question_id: number;
+          text: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: number;
+          is_correct?: boolean;
+          question_id: number;
+          text: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: number;
+          is_correct?: boolean;
+          question_id?: number;
+          text?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "anvers _question_id_fkey";
+            columns: ["question_id"];
+            referencedRelation: "questions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       modules: {
         Row: {
           created_at: string;
           description: string | null;
           id: number;
+          is_published: boolean;
           name: string;
           updated_at: string;
         };
@@ -21,6 +56,7 @@ export interface Database {
           created_at?: string;
           description?: string | null;
           id?: number;
+          is_published?: boolean;
           name: string;
           updated_at?: string;
         };
@@ -28,6 +64,7 @@ export interface Database {
           created_at?: string;
           description?: string | null;
           id?: number;
+          is_published?: boolean;
           name?: string;
           updated_at?: string;
         };
