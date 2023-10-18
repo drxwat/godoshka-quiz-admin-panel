@@ -8,13 +8,15 @@ import {
   Box,
 } from "@mui/material";
 import { useModules } from "../../hooks/useModules";
-import { AddModulesForm } from "../Forms/add.modules";
+import { AddModulesForm } from "../forms/add.modules";
 import { useDeleteModule } from "../../hooks/useDeleteModule";
 import { useState } from "react";
-import { Confirm } from "../Forms/confirm";
-import { UpdateModules } from "../Forms/update.modules";
+import { Confirm } from "../forms/confirm";
+import { UpdateModules } from "../forms/update.modules";
 import { useUpdateModule } from "../../hooks/useUpdateModule";
+import { useNavigate } from "react-router";
 export const ModulesTable = () => {
+  const navigate = useNavigate();
   const { confirmOpen, setConfirmOpen, setModuleIdToDelete, handleDelete } =
     useDeleteModule();
   const { modules, refreshModules } = useModules();
@@ -100,6 +102,9 @@ export const ModulesTable = () => {
                 <Button
                   sx={{
                     width: "33%",
+                  }}
+                  onClick={() => {
+                    navigate(`/questions/${module.id}`);
                   }}
                 >
                   Перейти

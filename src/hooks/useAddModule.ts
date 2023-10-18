@@ -1,29 +1,22 @@
 import { useState } from "react";
 import { client } from "../core/client/client";
+import { Database } from "../core/client/database.types";
+
+type ModuleInsert = Database["public"]["Tables"]["modules"]["Insert"];
 
 export const useAddModule = () => {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [module, setModule] = useState<ModuleInsert>({
+    name: "",
+    description: "",
+  });
 
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
-  };
-
-  const handleDescriptionChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setDescription(event.target.value);
+  const handleFieldChange = (field: keyof ModuleInsert, value: string) => {
+    setModule({ ...module, [field]: value });
   };
 
   const handleSave = async () => {
     try {
-      const currentDate = new Date().toISOString();
-      const dataToInsert = {
-        name: name,
-        description: description,
-        created_at: currentDate,
-      };
-      const { error } = await client.from("modules").insert([dataToInsert]);
+      const { error } = await client.from("modules").insert([module]);
       if (error) {
         console.error("Ошибка при отправке данных:", error);
       }
@@ -33,10 +26,8 @@ export const useAddModule = () => {
   };
 
   return {
-    name,
-    description,
-    handleNameChange,
-    handleDescriptionChange,
+    module,
+    handleFieldChange,
     handleSave,
   };
 };

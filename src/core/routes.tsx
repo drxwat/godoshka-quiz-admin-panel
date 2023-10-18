@@ -2,9 +2,10 @@ import { Route, createRoutesFromElements } from "react-router";
 import App from "../App";
 import { ProtectedRoute } from "./protected.route";
 import { client } from "./client/client";
-import { ModulesTable } from "../Components/tables/modules.table";
-import { LoginForm } from "../Components/Forms/login";
-import { NavigationPanel } from "../Components/navigation";
+import { LoginForm } from "../components/forms/login";
+import { MainLayout } from "../components/main.layout";
+import { ModulesTable } from "../components/tables/modules.table";
+import { QuestionsTable } from "../components/tables/questions.table";
 
 export const routes = createRoutesFromElements(
   <Route
@@ -18,10 +19,12 @@ export const routes = createRoutesFromElements(
       path="/"
       element={
         <ProtectedRoute>
-          <NavigationPanel />
-          <ModulesTable />
+          <MainLayout />
         </ProtectedRoute>
       }
-    />
+    >
+      <Route path="" element={<ModulesTable />}></Route>
+      <Route path="/questions/:moduleId" element={<QuestionsTable />}></Route>
+    </Route>
   </Route>,
 );

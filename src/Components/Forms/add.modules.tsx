@@ -19,15 +19,14 @@ export const AddModulesForm: React.FC<AddModulesFormProps> = ({
   handleClose,
   refreshModules,
 }) => {
-  const { handleNameChange, handleDescriptionChange, handleSave } =
-    useAddModule();
+  const { module, handleFieldChange, handleSave } = useAddModule();
 
   return (
     <Dialog open={open} onClose={handleClose}>
       <form
         onSubmit={async () => {
           await handleSave();
-          await refreshModules();
+          refreshModules();
         }}
       >
         <DialogContent
@@ -47,9 +46,18 @@ export const AddModulesForm: React.FC<AddModulesFormProps> = ({
           <TextField
             label="Name"
             sx={{ marginBottom: 1 }}
-            onChange={handleNameChange}
+            value={module.name}
+            onChange={({ target: { value } }) => {
+              handleFieldChange("name", value);
+            }}
           />
-          <TextField label="Description" onChange={handleDescriptionChange} />
+          <TextField
+            label="Description"
+            value={module.description}
+            onChange={({ target: { value } }) => {
+              handleFieldChange("description", value);
+            }}
+          />
           <DialogActions>
             <Button color="primary" type="submit" onClick={handleClose}>
               Сохранить
