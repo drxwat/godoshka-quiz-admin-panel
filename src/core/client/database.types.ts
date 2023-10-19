@@ -9,7 +9,7 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      "anvers ": {
+      answers: {
         Row: {
           created_at: string;
           id: number;
@@ -36,7 +36,7 @@ export interface Database {
         };
         Relationships: [
           {
-            foreignKeyName: "anvers _question_id_fkey";
+            foreignKeyName: "answers_question_id_fkey";
             columns: ["question_id"];
             referencedRelation: "questions";
             referencedColumns: ["id"];
@@ -49,7 +49,10 @@ export interface Database {
           description: string | null;
           id: number;
           is_published: boolean;
+          min_questions: number;
           name: string;
+          quiz_question_amount: number;
+          time_to_answer: number;
           updated_at: string;
         };
         Insert: {
@@ -57,7 +60,10 @@ export interface Database {
           description?: string | null;
           id?: number;
           is_published?: boolean;
+          min_questions?: number;
           name: string;
+          quiz_question_amount?: number;
+          time_to_answer?: number;
           updated_at?: string;
         };
         Update: {
@@ -65,7 +71,10 @@ export interface Database {
           description?: string | null;
           id?: number;
           is_published?: boolean;
+          min_questions?: number;
           name?: string;
+          quiz_question_amount?: number;
+          time_to_answer?: number;
           updated_at?: string;
         };
         Relationships: [];
@@ -75,21 +84,21 @@ export interface Database {
           created_at: string;
           id: number;
           module_id: number;
-          text: string | null;
+          text: string;
           updated_at: string;
         };
         Insert: {
           created_at?: string;
           id?: number;
           module_id: number;
-          text?: string | null;
+          text: string;
           updated_at?: string;
         };
         Update: {
           created_at?: string;
           id?: number;
           module_id?: number;
-          text?: string | null;
+          text?: string;
           updated_at?: string;
         };
         Relationships: [
