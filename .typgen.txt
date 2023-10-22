@@ -1,1 +1,2 @@
 npx supabase gen types typescript --project-id lnbkwselfdwqnoieafja --schema public > src/core/client/database.types.ts
+npx supabase gen types typescript --project-id lnbkwselfdwqnoieafja --schema public --access-token sbp_437babecb698c67c61b2e0778d3505043ab0b2b3 > src/core/client/database.types.ts
