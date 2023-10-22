@@ -1,97 +1,90 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { client } from "../core/client/client";
-// import { Database } from "../core/client/database.types";
+import { useParams } from "react-router";
+import { Database } from "../core/client/database.types";
 
-// type QuestionInsert = Database["public"]["Tables"]["answers"]["Insert"];
+type AnswerInsert = Omit<
+  Database["public"]["Tables"]["answers"]["Insert"],
+  "question_id"
+>;
+type QuestionInsert = Database["public"]["Tables"]["questions"]["Insert"];
+type QuestionWithAnswers = QuestionInsert & { answers: AnswerInsert[] };
 
-export const useAddQuestion = () => {
-  const [moduleId, setModuleId] = useState<number | undefined>(undefined);
-  const [question, setQuestion] = useState("");
-  const [questionTime, setQuestionTime] = useState<number>();
-  //   const [answerData1, setAnswerData1] = useState({
-  //     text: "",
-  //     is_correct: false,
-  //   });
-  //   const [answerData2, setAnswerData2] = useState({
-  //     text: "",
-  //     is_correct: false,
-  //   });
-  //   const [answerData3, setAnswerData3] = useState({
-  //     text: "",
-  //     is_correct: false,
-  //   });
-  //   const [answerData4, setAnswerData4] = useState({
-  //     text: "",
-  //     is_correct: false,
-  //   });
+const INITIAL_TIME_TO_ANSWER = 20;
+const INITIAL_ANSWERS: AnswerInsert[] = [{ text: "Да" }, { text: "Нет" }];
 
-  const initialAnswers = [
-    { text: "", is_correct: false },
-    { text: "", is_correct: false },
-    { text: "", is_correct: false },
-    { text: "", is_correct: false },
-  ];
-  const [answers, setAnswers] = useState(initialAnswers);
+export const useAddQuestion = (questionId?: number) => {
+  const params = useParams();
+  const moduleId = parseInt(params.moduleId ?? "");
 
-  //   const handleFieldCange = (
-  //     field: keyof QuestionInsert,
-  //     value: string | number,
-  //   ) => {
-  //     setAnswerData1({ ...answerData1, [field]: value });
-  //     setAnswerData2({ ...answerData2, [field]: value });
-  //     setAnswerData3({ ...answerData3, [field]: value });
-  //     setAnswerData4({ ...answerData4, [field]: value });
-  //   };
+  const [question, setQuestion] = useState<QuestionWithAnswers>({
+    module_id: moduleId,
+    text: "",
+    time_to_answer: INITIAL_TIME_TO_ANSWER,
+    answers: INITIAL_ANSWERS,
+  });
+
+  const fetchQuestionWithAnswers = async (questionId: number) => {
+    const { data } = await client
+      .from("questions")
+      .select("*, answers(*)")
+      .filter("id", "eq", questionId);
+    if (data && data.length > 0) {
+      setQuestion(data[0]);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof questionId === "number") {
+      fetchQuestionWithAnswers(questionId);
+    }
+  }, [questionId]);
+
   const handleFieldChange = (
-    index: number,
-    field: "text" | "is_correct",
-    value: string | boolean,
+    field: keyof QuestionWithAnswers,
+    value: unknown,
   ) => {
-    const updatedAnswers = [...answers];
-    if (updatedAnswers[index][field] === "is_correct") {
-      value === "on" ? (value = true) : (value = false);
-    }
-    setAnswers(updatedAnswers);
+    setQuestion({ ...question, [field]: value });
   };
 
-  const addQuestion = async (moduleId: number) => {
-    try {
-      const { data } = await client
-        .from("questions")
-        .insert({
-          text: question,
-          time_to_answer: questionTime,
-          module_id: moduleId,
-        })
-        .select();
-      if (data) {
-        console.log("Вопрос создан");
-        const questionId = data[0].id;
-        return questionId;
-      } else {
-        return "ID не получено";
-      }
-    } catch (addQuestionError) {
-      if (addQuestionError instanceof Error) {
-        console.log("Ошибка при создании вопроса", addQuestionError.message);
-      }
-    }
+  const hanldeSave = async () => {
+    await createQuestion(question);
   };
-  const addAnswer = async (func: number | string | undefined) => {
-    if (typeof func === "string" || typeof func === "undefined") {
-      console.log("ID вопроса не получен, ответы не будут добавлены");
-      return;
-    } else {
+
+  return {
+    question,
+    hanldeSave,
+    handleFieldChange,
+  };
+};
+
+const createQuestion = async (question: QuestionWithAnswers) => {
+  try {
+    const { text, time_to_answer, module_id, answers } = question;
+    const { data } = await client
+      .from("questions")
+      .insert({
+        text,
+        time_to_answer,
+        module_id,
+      })
+      .select();
+    if (data && data.length > 0) {
+      console.log("Вопрос создан");
+      const question_id = data[0].id;
+
       try {
-        for (const answer of answers) {
-          await client.from("answers").insert([
-            {
+        await client.from("answers").insert(
+          answers.map((answer) => {
+            return {
               text: answer.text,
-              is_correct: answer.is_correct,
-              question_id: func,
-            },
-          ]);
-        }
+              is_correct: !!answer.is_correct,
+              question_id,
+            };
+          }),
+        );
+
+        return question_id;
       } catch (addAnswerError) {
         if (addAnswerError instanceof Error) {
           console.log(
@@ -99,25 +92,16 @@ export const useAddQuestion = () => {
             addAnswerError.message,
           );
         }
+
+        await client.from("questions").delete().eq("id", question_id);
+        throw addAnswerError;
       }
     }
-  };
-  const hanldeSave = async () => {
-    console.log("Модуль ID:", moduleId);
-    if (moduleId !== undefined) {
-      const questionId = await addQuestion(moduleId);
-      addAnswer(questionId);
-    } else {
-      console.log("moduleId не определен, вопрос не будет создан");
+    throw new Error("ID вопроса не получен");
+  } catch (addQuestionError) {
+    if (addQuestionError instanceof Error) {
+      console.error("Ошибка при создании вопроса", addQuestionError.message);
     }
-  };
-
-  return {
-    setQuestion,
-    setQuestionTime,
-    setModuleId,
-    hanldeSave,
-    handleFieldChange,
-    answers,
-  };
+    throw addQuestionError;
+  }
 };

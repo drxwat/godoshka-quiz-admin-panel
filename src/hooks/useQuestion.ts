@@ -7,6 +7,7 @@ type QuestionRow = Database["public"]["Tables"]["questions"]["Row"];
 
 export const useQuestion = () => {
   const { moduleId } = useParams();
+
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
   const [fetchingData, setFetchingData] = useState(true);
 

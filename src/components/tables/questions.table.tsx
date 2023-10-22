@@ -15,15 +15,24 @@ export const QuestionsTable = () => {
   const { questions, refreshQuestion } = useQuestion();
 
   const [onOpen, setOnOpen] = useState(false);
+  const [questionToEdit, setQuestionToEdit] = useState<number | undefined>();
 
   return (
     <Box>
-      <AddUpdateQuestion
-        formLabel={"Добавить вопрос"}
-        open={onOpen}
-        close={() => setOnOpen(false)}
-        refreshQuestion={refreshQuestion}
-      />
+      {onOpen && (
+        <AddUpdateQuestion
+          formLabel={
+            questionToEdit ? "Редкатировать вопрос" : "Добавить вопрос"
+          }
+          open={onOpen}
+          questionId={questionToEdit}
+          close={() => {
+            setOnOpen(false);
+            setQuestionToEdit(undefined);
+          }}
+          refreshQuestion={refreshQuestion}
+        />
+      )}
       <Table>
         <TableHead>
           <TableRow>
@@ -60,6 +69,10 @@ export const QuestionsTable = () => {
                   <Button
                     sx={{
                       width: "50%",
+                    }}
+                    onClick={() => {
+                      setOnOpen(true);
+                      setQuestionToEdit(question.id);
                     }}
                   >
                     Изменить

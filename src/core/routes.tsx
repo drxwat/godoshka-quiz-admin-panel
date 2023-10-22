@@ -24,18 +24,7 @@ export const routes = createRoutesFromElements(
       }
     >
       <Route path="" element={<ModulesTable />}></Route>
-      <Route
-        loader={async ({ params }) => {
-          const { data: question } = await client
-            .from("questions")
-            .select()
-            .filter(`module_id`, "eq", params.moduleId);
-
-          return question;
-        }}
-        path="/questions/:moduleId"
-        element={<QuestionsTable />}
-      ></Route>
+      <Route path="/questions/:moduleId" element={<QuestionsTable />}></Route>
     </Route>
   </Route>,
 );
