@@ -11,7 +11,12 @@ type QuestionInsert = Database["public"]["Tables"]["questions"]["Insert"];
 type QuestionWithAnswers = QuestionInsert & { answers: AnswerInsert[] };
 
 const INITIAL_TIME_TO_ANSWER = 20;
-const INITIAL_ANSWERS: AnswerInsert[] = [{ text: "Да" }, { text: "Нет" }];
+const INITIAL_ANSWERS: AnswerInsert[] = [
+  { text: "Да" },
+  { text: "Нет" },
+  { text: "" },
+  { text: "" },
+];
 
 export const useAddQuestion = (questionId?: number) => {
   const params = useParams();
@@ -74,15 +79,16 @@ const createQuestion = async (question: QuestionWithAnswers) => {
       const question_id = data[0].id;
 
       try {
-        await client.from("answers").insert(
-          answers.map((answer) => {
+        const filteredAnswers = answers
+          .filter((answer) => answer && answer.text)
+          .map((answer) => {
             return {
+              question_id,
               text: answer.text,
               is_correct: !!answer.is_correct,
-              question_id,
             };
-          }),
-        );
+          });
+        await client.from("answers").insert(filteredAnswers);
 
         return question_id;
       } catch (addAnswerError) {
