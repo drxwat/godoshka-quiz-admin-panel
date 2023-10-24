@@ -26,14 +26,19 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
   close,
   refreshQuestion,
 }) => {
-  const { question, hanldeSave, handleFieldChange } =
+  const { question, hanldeSave, handleFieldChange, hanldeUpdate } =
     useAddQuestion(questionId);
 
   return (
     <Dialog open={open}>
       <form
         onSubmit={async () => {
-          await hanldeSave();
+          {
+            formLabel === "Добавить вопрос"
+              ? await hanldeSave()
+              : await hanldeUpdate;
+          }
+
           close();
           refreshQuestion();
         }}
@@ -54,7 +59,6 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
           <TextField
             value={question.time_to_answer}
             label="Время на ответ"
-            defaultValue={20}
             onChange={(event) => {
               handleFieldChange("time_to_answer", +event.target.value);
             }}

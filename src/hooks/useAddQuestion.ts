@@ -7,6 +7,8 @@ type AnswerInsert = Omit<
   Database["public"]["Tables"]["answers"]["Insert"],
   "question_id"
 >;
+
+type AnswerUpdate = Database["public"]["Tables"]["answers"]["Update"];
 type QuestionInsert = Database["public"]["Tables"]["questions"]["Insert"];
 type QuestionWithAnswers = QuestionInsert & { answers: AnswerInsert[] };
 
@@ -35,7 +37,11 @@ export const useAddQuestion = (questionId?: number) => {
       .select("*, answers(*)")
       .filter("id", "eq", questionId);
     if (data && data.length > 0) {
-      setQuestion(data[0]);
+      const dataAnswers: QuestionWithAnswers[] = [...data];
+      for (let i = 0; 4 - dataAnswers[0].answers.length > 0; i++) {
+        dataAnswers[0].answers.push({ text: "" });
+      }
+      setQuestion(dataAnswers[0]);
     }
   };
 
@@ -51,15 +57,86 @@ export const useAddQuestion = (questionId?: number) => {
   ) => {
     setQuestion({ ...question, [field]: value });
   };
+  const updateQuestion = async (
+    questionId: number,
+    question: QuestionWithAnswers,
+  ) => {
+    if (questionId && typeof questionId === "number") {
+      const { text, time_to_answer, module_id, answers } = question;
+      try {
+        await client
+          .from("questions")
+          .update({
+            text,
+            module_id,
+            time_to_answer,
+          })
+          .eq("id", questionId);
+        console.log("Вопрос обновлен успешно.");
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Ошибка при обновлении вопроса:", error.message);
+        }
+      }
+      try {
+        const updateAnswer: AnswerUpdate[] = answers
+          .filter((answer) => answer.id)
+          .map((answer) => {
+            return {
+              question_id: questionId,
+              id: answer.id,
+              text: answer.text,
+              is_correct: !!answer.is_correct,
+            };
+          });
+
+        await client
+          .from("answers")
+          .update(updateAnswer)
+          .eq(
+            "id",
+            updateAnswer.map((answer) => answer.id),
+          );
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Ошибка обновления ответов", error.message);
+        }
+      }
+
+      try {
+        const insertAnswer = answers
+          .filter((answer) => !answer.id)
+          .map((answer) => {
+            return {
+              question_id: questionId,
+              text: answer.text,
+              is_correct: !!answer.is_correct,
+            };
+          });
+
+        await client.from("answers").insert(insertAnswer);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.log("Новые ответы не добавлены, повторите", error.message);
+        }
+      }
+    }
+  };
 
   const hanldeSave = async () => {
+    console.log("save");
     await createQuestion(question);
+  };
+  const hanldeUpdate = async () => {
+    console.log("update");
+    if (questionId) await updateQuestion(questionId, question);
   };
 
   return {
     question,
     hanldeSave,
     handleFieldChange,
+    hanldeUpdate,
   };
 };
 
