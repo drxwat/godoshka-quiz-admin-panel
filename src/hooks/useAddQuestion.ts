@@ -56,126 +56,126 @@ export const useAddQuestion = (questionId?: number) => {
   ) => {
     setQuestion({ ...question, [field]: value });
   };
-  const updateQuestion = async (
-    questionId: number,
-    question: QuestionWithAnswers,
-  ) => {
-    const { text, time_to_answer, module_id, answers } = question;
 
-    const questionsUpdateRequest = await client
-      .from("questions")
-      .update({
-        text,
-        module_id,
-        time_to_answer,
-      })
-      .eq("id", questionId);
-
-    const answersUpdateRequests = answers
-      .filter((answer) => answer.id && answer.text.length > 0)
-      .map(async (answer) => {
-        return await client
-          .from("answers")
-          .update({
-            question_id: questionId,
-            id: answer.id,
-            text: answer.text,
-            is_correct: !!answer.is_correct,
-          })
-          .eq("id", answer.id ?? -1);
-      });
-
-    const answerDeleteRequests = answers
-      .filter((answer) => answer.id && !answer.text)
-      .map(async (answer) => {
-        return await client
-          .from("answers")
-          .delete()
-          .eq("id", answer.id ?? -1);
-      });
-
-    const answerInsertRequest = await client.from("answers").insert(
-      answers
-        .filter((answer) => !answer.id && answer.text.length > 0)
-        .map((answer) => {
-          return {
-            question_id: questionId,
-            text: answer.text,
-            is_correct: !!answer.is_correct,
-          };
-        }),
-    );
-
-    return Promise.all([
-      questionsUpdateRequest,
-      answerInsertRequest,
-      ...answersUpdateRequests,
-      ...answerDeleteRequests,
-    ]);
+  const hanldeSave = async () => {
+    await createQuestion(question);
   };
 
-  // const hanldeSave = async () => {
-  //   Promise.all
-  // };
-  // const hanldeUpdate = async () => {
-  //   console.log("update");
-  //   if (questionId) await updateQuestion(questionId, question);
-  // };
+  const hanldeUpdate = async () => {
+    if (questionId) await updateQuestion(questionId, question);
+  };
 
   return {
     question,
-    // hanldeSave,
+    hanldeSave,
     handleFieldChange,
-    updateQuestion,
-    // hanldeUpdate,
+    hanldeUpdate,
   };
 };
 
-// const createQuestion = async (question: QuestionWithAnswers) => {
-//   try {
-//     const { text, time_to_answer, module_id, answers } = question;
-//     const { data } = await client
-//       .from("questions")
-//       .insert({
-//         text,
-//         time_to_answer,
-//         module_id,
-//       })
-//       .select();
-//     if (data && data.length > 0) {
-//       console.log("Вопрос создан");
-//       const question_id = data[0].id;
+const updateQuestion = async (
+  questionId: number,
+  question: QuestionWithAnswers,
+) => {
+  const { text, time_to_answer, module_id, answers } = question;
 
-//       try {
-//         const filteredAnswers = answers
-//           .filter((answer) => answer && answer.text)
-//           .map((answer) => {
-//             return {
-//               question_id,
-//               text: answer.text,
-//               is_correct: !!answer.is_correct,
-//             };
-//           });
-//         await client.from("answers").insert(filteredAnswers);
+  const questionsUpdateRequest = await client
+    .from("questions")
+    .update({
+      text,
+      module_id,
+      time_to_answer,
+    })
+    .eq("id", questionId);
 
-//         return question_id;
-//       } catch (addAnswerError) {
-//         if (addAnswerError instanceof Error) {
-//           console.log(
-//             "Ошибка добавления ответов, удаляю вопрос...",
-//             addAnswerError.message,
-//           );
-//         }
+  const answersUpdateRequests = answers
+    .filter((answer) => answer.id && answer.text.length > 0)
+    .map(async (answer) => {
+      return await client
+        .from("answers")
+        .update({
+          question_id: questionId,
+          id: answer.id,
+          text: answer.text,
+          is_correct: !!answer.is_correct,
+        })
+        .eq("id", answer.id ?? -1);
+    });
 
-//         await client.from("questions").delete().eq("id", question_id);
-//         throw addAnswerError;
-//       }
-//     }
-//     throw new Error("ID вопроса не получен");
-//   } catch (addQuestionError) {
-//     if (addQuestionError instanceof Error) {
-//       console.error("Ошибка при создании вопроса", addQuestionError.message);
-//     }
-//     throw addQuestionError;
-//   }
-// };
+  const answerDeleteRequests = answers
+    .filter((answer) => answer.id && !answer.text)
+    .map(async (answer) => {
+      return await client
+        .from("answers")
+        .delete()
+        .eq("id", answer.id ?? -1);
+    });
+
+  const answerInsertRequest = await client.from("answers").insert(
+    answers
+      .filter((answer) => !answer.id && answer.text.length > 0)
+      .map((answer) => {
+        return {
+          question_id: questionId,
+          text: answer.text,
+          is_correct: !!answer.is_correct,
+        };
+      }),
+  );
+
+  return Promise.all([
+    questionsUpdateRequest,
+    answerInsertRequest,
+    ...answersUpdateRequests,
+    ...answerDeleteRequests,
+  ]);
+};
+
+const createQuestion = async (question: QuestionWithAnswers) => {
+  try {
+    const { text, time_to_answer, module_id, answers } = question;
+    const { data } = await client
+      .from("questions")
+      .insert({
+        text,
+        time_to_answer,
+        module_id,
+      })
+      .select();
+    if (data && data.length > 0) {
+      console.log("Вопрос создан");
+      const question_id = data[0].id;
+
+      try {
+        const filteredAnswers = answers
+          .filter((answer) => answer && answer.text)
+          .map((answer) => {
+            return {
+              question_id,
+              text: answer.text,
+              is_correct: !!answer.is_correct,
+            };
+          });
+        await client.from("answers").insert(filteredAnswers);
+
+        return question_id;
+      } catch (addAnswerError) {
+        if (addAnswerError instanceof Error) {
+          console.log(
+            "Ошибка добавления ответов, удаляю вопрос...",
+            addAnswerError.message,
+          );
+        }
+
+        await client.from("questions").delete().eq("id", question_id);
+        throw addAnswerError;
+      }
+    }
+    throw new Error("ID вопроса не получен");
+  } catch (addQuestionError) {
+    if (addQuestionError instanceof Error) {
+      console.error("Ошибка при создании вопроса", addQuestionError.message);
+    }
+    throw addQuestionError;
+  }
+};
