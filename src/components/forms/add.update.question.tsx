@@ -28,7 +28,7 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
 }) => {
   const { question, hanldeSave, handleFieldChange, hanldeUpdate } =
     useAddQuestion(questionId);
-
+  console.log(question);
   return (
     <Dialog open={open}>
       <form
@@ -90,7 +90,7 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
                 <FormControlLabel
                   control={
                     <Checkbox
-                      value={!!answer.is_correct}
+                      checked={!!answer.is_correct}
                       onChange={(event) => {
                         const answers = [...question.answers];
                         answers[index] = {
