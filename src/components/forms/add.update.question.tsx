@@ -13,14 +13,12 @@ import { useAddQuestion } from "../../hooks/useAddQuestion";
 
 interface AddUpdateQuestionProps {
   formLabel: string;
-  open: boolean;
   questionId?: number;
   close: () => void;
   refreshQuestion: () => void;
 }
 
 export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
-  open,
   questionId,
   formLabel,
   close,
@@ -30,7 +28,7 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
     useAddQuestion(questionId);
   console.log(question);
   return (
-    <Dialog open={open}>
+    <Dialog open={!!formLabel}>
       <form
         onSubmit={async () => {
           {
