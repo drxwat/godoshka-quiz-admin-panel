@@ -75,6 +75,7 @@ export const QuestionsTable = () => {
       <Confirm
         open={state.formType === "delete"}
         handleClose={() => dispatch({ type: CLOSE_FORM })}
+        questionId={state.questionId ?? -1}
       />
       {(state.formType === "update" || state.formType === "add") && (
         <AddUpdateQuestion
@@ -86,6 +87,7 @@ export const QuestionsTable = () => {
           questionId={state.questionId}
           close={() => {
             dispatch({ type: CLOSE_FORM });
+            refreshQuestion();
           }}
           refreshQuestion={refreshQuestion}
         />
