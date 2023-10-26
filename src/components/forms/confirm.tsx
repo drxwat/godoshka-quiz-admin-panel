@@ -9,17 +9,22 @@ import {
 interface ConfirmProps {
   open: boolean;
   handleClose: () => void;
-  handleConfirm: () => void;
+  handleDelete: () => void;
 }
 
 export const Confirm: React.FC<ConfirmProps> = ({
   open,
   handleClose,
-  handleConfirm,
+  handleDelete,
 }) => {
   return (
     <Dialog open={open}>
-      <form onSubmit={handleConfirm}>
+      <form
+        onSubmit={async () => {
+          await handleDelete();
+          handleClose();
+        }}
+      >
         <Box sx={{ padding: 3 }}>
           <DialogContentText sx={{ textAlign: "center", marginBottom: 2 }}>
             Вы уверены?

@@ -13,27 +13,30 @@ import { useAddQuestion } from "../../hooks/useAddQuestion";
 
 interface AddUpdateQuestionProps {
   formLabel: string;
-  open: boolean;
   questionId?: number;
   close: () => void;
   refreshQuestion: () => void;
 }
 
 export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
-  open,
   questionId,
   formLabel,
   close,
   refreshQuestion,
 }) => {
-  const { question, hanldeSave, handleFieldChange } =
+  const { question, hanldeSave, handleFieldChange, hanldeUpdate } =
     useAddQuestion(questionId);
-
+  console.log(question);
   return (
-    <Dialog open={open}>
+    <Dialog open={!!formLabel}>
       <form
         onSubmit={async () => {
-          await hanldeSave();
+          {
+            formLabel === "Добавить вопрос"
+              ? await hanldeSave()
+              : await hanldeUpdate;
+          }
+
           close();
           refreshQuestion();
         }}
@@ -54,7 +57,6 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
           <TextField
             value={question.time_to_answer}
             label="Время на ответ"
-            defaultValue={20}
             onChange={(event) => {
               handleFieldChange("time_to_answer", +event.target.value);
             }}
@@ -86,7 +88,7 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
                 <FormControlLabel
                   control={
                     <Checkbox
-                      value={!!answer.is_correct}
+                      checked={!!answer.is_correct}
                       onChange={(event) => {
                         const answers = [...question.answers];
                         answers[index] = {

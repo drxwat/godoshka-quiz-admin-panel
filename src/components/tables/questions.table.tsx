@@ -8,27 +8,94 @@ import {
   Box,
 } from "@mui/material";
 import { useQuestion } from "../../hooks/useQuestion";
-import { useState } from "react";
+import { useReducer } from "react";
 import { AddUpdateQuestion } from "../forms/add.update.question";
+import { Confirm } from "../forms/confirm";
+import { useDeleteQuestion } from "../../hooks/useDeleteQuestion";
+
+const OPEN_ADD_QUESTION = "OPEN_ADD_QUESTION";
+const OPEN_UPDATE_QUESTION = "OPEN_UPDATE_QUESTION";
+const OPEN_DELETE_QUESTION = "OPEN_DELETE_QUESTION";
+const CLOSE_FORM = "CLOSE_FORM";
+
+const initialState = {
+  formType: "",
+  questionId: undefined,
+  isOpen: false,
+};
+
+type StateType = {
+  formType?: string | null;
+  questionId?: number | undefined;
+  isOpen?: boolean;
+};
+
+type ActionType = {
+  type: string;
+  questionId?: number | undefined;
+  formType?: string;
+  isOpen?: boolean;
+};
+const reducer = (state: StateType, action: ActionType) => {
+  switch (action.type) {
+    case OPEN_ADD_QUESTION:
+      return {
+        formType: "add",
+        isOpen: true,
+        questionId: undefined,
+      };
+    case OPEN_UPDATE_QUESTION:
+      return {
+        formType: "update",
+        isOpen: true,
+        questionId: action.questionId,
+      };
+    case OPEN_DELETE_QUESTION:
+      return {
+        formType: "delete",
+        isOpen: true,
+        questionId: action.questionId,
+      };
+    case CLOSE_FORM:
+      return {
+        formType: null,
+        isOpen: false,
+        questionId: undefined,
+      };
+    default:
+      return state;
+  }
+};
 
 export const QuestionsTable = () => {
-  const { questions, refreshQuestion } = useQuestion();
+  const { handleDelete } = useDeleteQuestion();
 
-  const [onOpen, setOnOpen] = useState(false);
-  const [questionToEdit, setQuestionToEdit] = useState<number | undefined>();
+  const { questions, refreshQuestion } = useQuestion();
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   return (
     <Box>
-      {onOpen && (
+      <Confirm
+        open={state.formType === "delete"}
+        handleClose={() => dispatch({ type: CLOSE_FORM })}
+        handleDelete={async () => {
+          if (state.questionId) {
+            await handleDelete(state.questionId);
+            refreshQuestion();
+          }
+        }}
+      />
+      {(state.formType === "update" || state.formType === "add") && (
         <AddUpdateQuestion
           formLabel={
-            questionToEdit ? "Редкатировать вопрос" : "Добавить вопрос"
+            state.formType === "update"
+              ? "Редкатировать вопрос"
+              : "Добавить вопрос"
           }
-          open={onOpen}
-          questionId={questionToEdit}
+          questionId={state.questionId}
           close={() => {
-            setOnOpen(false);
-            setQuestionToEdit(undefined);
+            dispatch({ type: CLOSE_FORM });
+            refreshQuestion();
           }}
           refreshQuestion={refreshQuestion}
         />
@@ -50,7 +117,7 @@ export const QuestionsTable = () => {
                 sx={{
                   width: "50%",
                 }}
-                onClick={() => setOnOpen(true)}
+                onClick={() => dispatch({ type: OPEN_ADD_QUESTION })}
               >
                 Добавить вопрос
               </Button>
@@ -71,8 +138,10 @@ export const QuestionsTable = () => {
                       width: "50%",
                     }}
                     onClick={() => {
-                      setOnOpen(true);
-                      setQuestionToEdit(question.id);
+                      dispatch({
+                        type: OPEN_UPDATE_QUESTION,
+                        questionId: question.id,
+                      });
                     }}
                   >
                     Изменить
@@ -80,6 +149,12 @@ export const QuestionsTable = () => {
                   <Button
                     sx={{
                       width: "33%",
+                    }}
+                    onClick={() => {
+                      dispatch({
+                        type: OPEN_DELETE_QUESTION,
+                        questionId: question.id,
+                      });
                     }}
                   >
                     Удалить
