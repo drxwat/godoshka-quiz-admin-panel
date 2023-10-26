@@ -62,6 +62,7 @@ export const useAddQuestion = (questionId?: number) => {
   };
 
   const hanldeUpdate = async () => {
+    console.log(questionId);
     if (questionId) await updateQuestion(questionId, question);
   };
 
