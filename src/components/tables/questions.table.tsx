@@ -36,7 +36,7 @@ type ActionType = {
   formType?: string;
   isOpen?: boolean;
 };
-const reducer = (state: StateType, action: ActionType) => {
+function reducer(state: StateType, action: ActionType) {
   switch (action.type) {
     case OPEN_ADD_QUESTION:
       return {
@@ -65,11 +65,10 @@ const reducer = (state: StateType, action: ActionType) => {
     default:
       return state;
   }
-};
+}
 
 export const QuestionsTable = () => {
   const { handleDelete } = useDeleteQuestion();
-
   const { questions, refreshQuestion } = useQuestion();
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -97,7 +96,6 @@ export const QuestionsTable = () => {
             dispatch({ type: CLOSE_FORM });
             refreshQuestion();
           }}
-          refreshQuestion={refreshQuestion}
         />
       )}
       <Table>

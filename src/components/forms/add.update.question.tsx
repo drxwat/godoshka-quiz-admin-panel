@@ -15,30 +15,30 @@ interface AddUpdateQuestionProps {
   formLabel: string;
   questionId?: number;
   close: () => void;
-  refreshQuestion: () => void;
 }
 
 export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
   questionId,
   formLabel,
   close,
-  refreshQuestion,
 }) => {
   const { question, hanldeSave, handleFieldChange, hanldeUpdate } =
     useAddQuestion(questionId);
+  console.log(questionId);
   console.log(question);
+
   return (
     <Dialog open={!!formLabel}>
       <form
         onSubmit={async () => {
-          {
-            formLabel === "Добавить вопрос"
-              ? await hanldeSave()
-              : await hanldeUpdate;
+          console.log(formLabel);
+          if (formLabel === "Добавить вопрос") {
+            await hanldeSave();
+          } else {
+            await hanldeUpdate();
           }
 
           close();
-          refreshQuestion();
         }}
       >
         <DialogContent>
