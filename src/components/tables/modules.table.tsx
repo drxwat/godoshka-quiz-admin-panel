@@ -1,12 +1,16 @@
 import {
-  Table,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
-  Button,
   Box,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Grid,
+  Switch,
+  Fab,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { motion } from "framer-motion";
+import format from "date-fns/format";
 import { useModules } from "../../hooks/useModules";
 import { AddModulesForm } from "../forms/add.modules";
 import { useDeleteModule } from "../../hooks/useDeleteModule";
@@ -14,7 +18,9 @@ import { useState } from "react";
 import { Confirm } from "../forms/confirm";
 import { UpdateModules } from "../forms/update.modules";
 import { useUpdateModule } from "../../hooks/useUpdateModule";
+import { parseISO } from "date-fns";
 import { useNavigate } from "react-router";
+
 export const ModulesTable = () => {
   const navigate = useNavigate();
   const {
@@ -45,104 +51,135 @@ export const ModulesTable = () => {
     setOpen(false);
   };
 
+  const dateHandler = (date: string) => {
+    return parseISO(date);
+  };
+
   return (
     <Box>
-      <AddModulesForm
-        open={open}
-        handleClose={handleClose}
-        refreshModules={refreshModules}
-      />
-      <Confirm
-        open={confirmOpen}
-        handleClose={() => setConfirmOpen(false)}
-        handleDelete={async () => {
-          await handleDelete(moduleIdToDelete);
-          refreshModules();
-        }}
-      />
-      <UpdateModules
-        open={updateOpen}
-        handleClose={() => setUpdateOpen(false)}
-        updateName={updateName}
-        updateDescription={updateDescription}
-        handleUpdate={async () => {
-          await handleUpdate();
-          refreshModules();
-        }}
-        setUpdateName={setUpdateName}
-        setUpdateDescription={setUpdateDescription}
-      />
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Description</TableCell>
-            <TableCell>Created</TableCell>
-            <TableCell>Updated</TableCell>
-            <TableCell
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
-            >
-              <Button
-                sx={{
-                  width: "33%",
-                }}
-                onClick={() => handleOpen()}
-              >
-                Добавить модуль
-              </Button>
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
+      <Box sx={{ marginTop: 2 }}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <AddModulesForm
+            open={open}
+            handleClose={handleClose}
+            refreshModules={refreshModules}
+          />
+        </motion.div>
+        <Confirm
+          open={confirmOpen}
+          handleClose={() => setConfirmOpen(false)}
+          handleDelete={async () => {
+            await handleDelete(moduleIdToDelete);
+            refreshModules();
+          }}
+        />
+        <UpdateModules
+          open={updateOpen}
+          handleClose={() => setUpdateOpen(false)}
+          updateName={updateName}
+          updateDescription={updateDescription}
+          handleUpdate={async () => {
+            await handleUpdate();
+            refreshModules();
+          }}
+          setUpdateName={setUpdateName}
+          setUpdateDescription={setUpdateDescription}
+        />
+        <Grid container spacing={2}>
           {modules.map((module) => (
-            <TableRow key={module.id}>
-              <TableCell>{module.name}</TableCell>
-              <TableCell>{module.description}</TableCell>
-              <TableCell>{module.created_at}</TableCell>
-              <TableCell>{module.updated_at}</TableCell>
-              <TableCell>
-                <Button
-                  sx={{
-                    width: "33%",
-                  }}
-                  onClick={() => {
-                    navigate(`/questions/${module.id}`);
-                  }}
-                >
-                  Перейти
-                </Button>
-                <Button
-                  sx={{
-                    width: "33%",
-                  }}
-                  onClick={() => {
-                    setModuleIdToUpdate(module.id);
-                    setUpdateName(module.name);
-                    setUpdateDescription(module.description);
-                    setUpdateOpen(true);
-                  }}
-                >
-                  Изменить
-                </Button>
-                <Button
-                  sx={{
-                    width: "33%",
-                  }}
-                  onClick={() => {
-                    setModuleIdToDelete(module.id);
-                    setConfirmOpen(true);
-                  }}
-                >
-                  Удалить
-                </Button>
-              </TableCell>
-            </TableRow>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={module.id}>
+              <Card>
+                <CardContent>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <Typography variant="h6" component="div">
+                      {module.name}
+                    </Typography>
+                    <Switch
+                      color="primary"
+                      // Добавьте обработчик для обработки изменения состояния свитчера
+                    />
+                  </Box>
+                  <Typography variant="body2" color="text.secondary">
+                    {module.description ? module.description : "Описания нет"}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ marginTop: 2 }}
+                  >
+                    Необходимо вопросов:{module.min_questions}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Всего вопросов в модуле:{module.quiz_question_amount}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Created:{" "}
+                    {format(dateHandler(module.created_at), "dd:MM:yyyy HH:mm")}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Updated:{" "}
+                    {format(dateHandler(module.updated_at), "dd:MM:yyyy HH:mm")}
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-around",
+                      gap: 2,
+                      marginTop: 2,
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      onClick={() => navigate(`/questions/${module.id}`)}
+                    >
+                      Перейти
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() => {
+                        setModuleIdToUpdate(module.id);
+                        setUpdateName(module.name);
+                        setUpdateDescription(module.description);
+                        setUpdateOpen(true);
+                      }}
+                    >
+                      Изменить
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() => {
+                        setModuleIdToDelete(module.id);
+                        setConfirmOpen(true);
+                      }}
+                    >
+                      Удалить
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
           ))}
-        </TableBody>
-      </Table>
+        </Grid>
+      </Box>
+      <Fab
+        color="primary"
+        aria-label="Add Module"
+        sx={{
+          position: "fixed",
+          bottom: "16px",
+          right: "16px",
+        }}
+        onClick={handleOpen}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };
