@@ -5,25 +5,23 @@ import {
   Button,
   Box,
 } from "@mui/material";
-import { useDeleteQuestion } from "../../hooks/useDeleteQuestion";
 
 interface ConfirmProps {
   open: boolean;
   handleClose: () => void;
-  questionId: number;
+  handleDelete: () => void;
 }
 
 export const Confirm: React.FC<ConfirmProps> = ({
   open,
   handleClose,
-  questionId,
+  handleDelete,
 }) => {
-  const { handleDelete } = useDeleteQuestion();
   return (
     <Dialog open={open}>
       <form
         onSubmit={async () => {
-          await handleDelete(questionId);
+          await handleDelete();
           handleClose();
         }}
       >

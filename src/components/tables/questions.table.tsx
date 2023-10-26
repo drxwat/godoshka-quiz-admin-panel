@@ -11,6 +11,7 @@ import { useQuestion } from "../../hooks/useQuestion";
 import { useReducer } from "react";
 import { AddUpdateQuestion } from "../forms/add.update.question";
 import { Confirm } from "../forms/confirm";
+import { useDeleteQuestion } from "../../hooks/useDeleteQuestion";
 
 const OPEN_ADD_QUESTION = "OPEN_ADD_QUESTION";
 const OPEN_UPDATE_QUESTION = "OPEN_UPDATE_QUESTION";
@@ -67,6 +68,8 @@ const reducer = (state: StateType, action: ActionType) => {
 };
 
 export const QuestionsTable = () => {
+  const { handleDelete } = useDeleteQuestion();
+
   const { questions, refreshQuestion } = useQuestion();
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -75,7 +78,12 @@ export const QuestionsTable = () => {
       <Confirm
         open={state.formType === "delete"}
         handleClose={() => dispatch({ type: CLOSE_FORM })}
-        questionId={state.questionId ?? -1}
+        handleDelete={async () => {
+          if (state.questionId) {
+            await handleDelete(state.questionId);
+            refreshQuestion();
+          }
+        }}
       />
       {(state.formType === "update" || state.formType === "add") && (
         <AddUpdateQuestion

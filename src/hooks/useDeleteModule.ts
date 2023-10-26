@@ -4,7 +4,7 @@ export const useDeleteModule = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [moduleIdToDelete, setModuleIdToDelete] = useState(-1);
 
-  const handleDelete = async () => {
+  const handleDelete = async (moduleIdToDelete: number) => {
     try {
       if (moduleIdToDelete !== -1) {
         const { error } = await client

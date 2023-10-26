@@ -17,8 +17,13 @@ import { useUpdateModule } from "../../hooks/useUpdateModule";
 import { useNavigate } from "react-router";
 export const ModulesTable = () => {
   const navigate = useNavigate();
-  const { confirmOpen, setConfirmOpen, setModuleIdToDelete, handleDelete } =
-    useDeleteModule();
+  const {
+    confirmOpen,
+    setConfirmOpen,
+    setModuleIdToDelete,
+    handleDelete,
+    moduleIdToDelete,
+  } = useDeleteModule();
   const { modules, refreshModules } = useModules();
   const [open, setOpen] = useState(false);
   const {
@@ -50,8 +55,8 @@ export const ModulesTable = () => {
       <Confirm
         open={confirmOpen}
         handleClose={() => setConfirmOpen(false)}
-        handleConfirm={async () => {
-          await handleDelete();
+        handleDelete={async () => {
+          await handleDelete(moduleIdToDelete);
           refreshModules();
         }}
       />
