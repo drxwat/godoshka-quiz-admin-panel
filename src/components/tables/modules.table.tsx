@@ -102,7 +102,7 @@ export const ModulesTable = () => {
                     </Typography>
                     <Switch
                       color="primary"
-                      // Добавьте обработчик для обработки изменения состояния свитчера
+                      //НЕ ЗАБЫТЬ ТЫКНУТЬ ОБРАБОТЧИК СЮДА!!!!!!
                     />
                   </Box>
                   <Typography variant="body2" color="text.secondary">
