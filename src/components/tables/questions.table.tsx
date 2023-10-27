@@ -12,6 +12,7 @@ import { useReducer } from "react";
 import { AddUpdateQuestion } from "../forms/add.update.question";
 import { Confirm } from "../forms/confirm";
 import { useDeleteQuestion } from "../../hooks/useDeleteQuestion";
+import Markdown from "react-markdown";
 
 const OPEN_ADD_QUESTION = "OPEN_ADD_QUESTION";
 const OPEN_UPDATE_QUESTION = "OPEN_UPDATE_QUESTION";
@@ -127,7 +128,9 @@ export const QuestionsTable = () => {
             return (
               <TableRow key={question.id}>
                 <TableCell>{question.module_id}</TableCell>
-                <TableCell>{question.text}</TableCell>
+                <TableCell>
+                  <Markdown>{question.text}</Markdown>
+                </TableCell>
                 <TableCell>{question.created_at}</TableCell>
                 <TableCell>{question.updated_at}</TableCell>
                 <TableCell>

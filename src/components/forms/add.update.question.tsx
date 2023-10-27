@@ -8,6 +8,8 @@ import {
   FormControlLabel,
   DialogContentText,
   Box,
+  TextareaAutosize,
+  styled,
 } from "@mui/material";
 import { useAddQuestion } from "../../hooks/useAddQuestion";
 
@@ -45,14 +47,12 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
           <DialogContentText sx={{ textAlign: "center", marginBottom: 1 }}>
             {formLabel}
           </DialogContentText>
-          <TextField
+          <TextareaAutosizeStyled
+            minRows={10}
             value={question.text}
-            label="Текст вопроса"
-            fullWidth
             onChange={(event) => {
               handleFieldChange("text", event.target.value);
             }}
-            sx={{ marginBottom: 1 }}
           />
           <TextField
             value={question.time_to_answer}
@@ -123,3 +123,10 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
     </Dialog>
   );
 };
+
+const TextareaAutosizeStyled = styled(TextareaAutosize)(() => ({
+  width: "100%",
+  padding: 0,
+  borderRadius: "4px",
+  marginBottom: "8px",
+}));
