@@ -5,12 +5,18 @@ import { client } from "../core/client/client";
 type Row = Database["public"]["Tables"]["modules"]["Row"];
 export const useModules = () => {
   const [modules, setModules] = useState<Row[]>([]);
+  const [questionCountArr, setQuestionCountArr] =
+    useState<{ module_id: number }[]>();
   const [fetchingData, setFetchingData] = useState(true);
 
   const getModulesList = async () => {
     const { data } = await client.from("modules").select();
-    if (data) {
+    const questionCount = await client
+      .from("questions")
+      .select("module_id", { count: "exact" });
+    if (data && questionCount.data) {
       setModules(data);
+      setQuestionCountArr(questionCount.data);
     }
   };
   const refreshModules = () => {
@@ -30,5 +36,5 @@ export const useModules = () => {
     }
   }, [fetchingData]);
 
-  return { modules, refreshModules };
+  return { modules, refreshModules, questionCountArr };
 };

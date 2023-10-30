@@ -44,7 +44,7 @@ export const AddModulesForm: React.FC<AddModulesFormProps> = ({
             Create new module
           </DialogContentText>
           <TextField
-            label="Name"
+            label="Название модуля"
             sx={{ marginBottom: 1 }}
             value={module.name}
             onChange={({ target: { value } }) => {
@@ -52,10 +52,26 @@ export const AddModulesForm: React.FC<AddModulesFormProps> = ({
             }}
           />
           <TextField
-            label="Description"
+            label="Описание"
+            sx={{ marginBottom: 1 }}
             value={module.description}
             onChange={({ target: { value } }) => {
               handleFieldChange("description", value);
+            }}
+          />
+          <TextField
+            label="Необходимо вопросов"
+            sx={{ marginBottom: 1 }}
+            value={module.min_questions}
+            onChange={({ target: { value } }) => {
+              handleFieldChange("min_questions", +value);
+            }}
+          />
+          <TextField
+            label="Вопросов в квизе"
+            value={module.quiz_question_amount}
+            onChange={({ target: { value } }) => {
+              handleFieldChange("quiz_question_amount", +value);
             }}
           />
           <DialogActions>

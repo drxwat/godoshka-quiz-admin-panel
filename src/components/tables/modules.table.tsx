@@ -20,6 +20,7 @@ import { UpdateModules } from "../forms/update.modules";
 import { useUpdateModule } from "../../hooks/useUpdateModule";
 import { parseISO } from "date-fns";
 import { useNavigate } from "react-router";
+import { client } from "../../core/client/client";
 
 export const ModulesTable = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ export const ModulesTable = () => {
     handleDelete,
     moduleIdToDelete,
   } = useDeleteModule();
-  const { modules, refreshModules } = useModules();
+  const { modules, refreshModules, questionCountArr } = useModules();
   const [open, setOpen] = useState(false);
   const {
     updateOpen,
@@ -54,6 +55,20 @@ export const ModulesTable = () => {
   const dateHandler = (date: string) => {
     return parseISO(date);
   };
+
+  const getQuestionCount = (moduleId: number) => {
+    const questionCount = questionCountArr?.filter(
+      (item) => item.module_id === moduleId,
+    );
+    if (questionCount) {
+      return questionCount?.length;
+    } else {
+      return 0;
+    }
+  };
+
+  let hasEnoughQuestions = true;
+  const switchColor = hasEnoughQuestions ? "primary" : "error";
 
   return (
     <Box>
@@ -101,7 +116,27 @@ export const ModulesTable = () => {
                       {module.name}
                     </Typography>
                     <Switch
-                      color="primary"
+                      checked={module.is_published}
+                      color={switchColor}
+                      onChange={async () => {
+                        if (
+                          getQuestionCount(module.id) >= module.min_questions
+                        ) {
+                          hasEnoughQuestions = true;
+                          await client
+                            .from("modules")
+                            .update({ is_published: !module.is_published })
+                            .eq("id", module.id);
+                          refreshModules();
+                        } else {
+                          hasEnoughQuestions = false;
+                          console.log(
+                            `Недостаточно вопросов, добавьте еще ${
+                              module.min_questions - getQuestionCount(module.id)
+                            } `,
+                          );
+                        }
+                      }}
                       //НЕ ЗАБЫТЬ ТЫКНУТЬ ОБРАБОТЧИК СЮДА!!!!!!
                     />
                   </Box>
@@ -113,10 +148,13 @@ export const ModulesTable = () => {
                     color="text.secondary"
                     sx={{ marginTop: 2 }}
                   >
-                    Необходимо вопросов:{module.min_questions}
+                    Необходимо вопросов: {module.min_questions}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Всего вопросов в модуле:{module.quiz_question_amount}
+                    Всего вопросов в модуле: {getQuestionCount(module.id)}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Вопросов в квизе: {module.quiz_question_amount}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Created:{" "}
