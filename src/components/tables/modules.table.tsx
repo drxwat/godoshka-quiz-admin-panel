@@ -145,7 +145,7 @@ export const ModulesTable = () => {
                   </Typography>
                   <Typography
                     variant="body2"
-                    color={textColor}
+                    color="text.secondary"
                     sx={{ marginTop: 2 }}
                   >
                     Необходимо вопросов: {module.min_questions}
