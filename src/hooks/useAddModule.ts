@@ -8,9 +8,14 @@ export const useAddModule = () => {
   const [module, setModule] = useState<ModuleInsert>({
     name: "",
     description: "",
+    min_questions: 10,
+    quiz_question_amount: 10,
   });
 
-  const handleFieldChange = (field: keyof ModuleInsert, value: string) => {
+  const handleFieldChange = (
+    field: keyof ModuleInsert,
+    value: string | number,
+  ) => {
     setModule({ ...module, [field]: value });
   };
 

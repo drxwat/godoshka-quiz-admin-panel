@@ -20,6 +20,7 @@ import { UpdateModules } from "../forms/update.modules";
 import { useUpdateModule } from "../../hooks/useUpdateModule";
 import { parseISO } from "date-fns";
 import { useNavigate } from "react-router";
+import { client } from "../../core/client/client";
 
 export const ModulesTable = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ export const ModulesTable = () => {
     handleDelete,
     moduleIdToDelete,
   } = useDeleteModule();
-  const { modules, refreshModules } = useModules();
+  const { modules, refreshModules, questionCountArr } = useModules();
   const [open, setOpen] = useState(false);
   const {
     updateOpen,
@@ -53,6 +54,13 @@ export const ModulesTable = () => {
 
   const dateHandler = (date: string) => {
     return parseISO(date);
+  };
+
+  const getQuestionCount = (moduleId: number) => {
+    const questionCount = questionCountArr?.filter(
+      (item) => item.module_id === moduleId,
+    );
+    return questionCount?.length;
   };
 
   return (
@@ -101,7 +109,15 @@ export const ModulesTable = () => {
                       {module.name}
                     </Typography>
                     <Switch
+                      checked={module.is_published}
                       color="primary"
+                      onChange={async () => {
+                        await client
+                          .from("modules")
+                          .update({ is_published: !module.is_published })
+                          .eq("id", module.id);
+                        refreshModules();
+                      }}
                       //НЕ ЗАБЫТЬ ТЫКНУТЬ ОБРАБОТЧИК СЮДА!!!!!!
                     />
                   </Box>
@@ -113,10 +129,13 @@ export const ModulesTable = () => {
                     color="text.secondary"
                     sx={{ marginTop: 2 }}
                   >
-                    Необходимо вопросов:{module.min_questions}
+                    Необходимо вопросов: {module.min_questions}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Всего вопросов в модуле:{module.quiz_question_amount}
+                    Всего вопросов в модуле: {getQuestionCount(module.id)}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Вопросов в квизе: {module.quiz_question_amount}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Created:{" "}
