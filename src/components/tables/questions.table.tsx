@@ -133,7 +133,7 @@ export const QuestionsTable = () => {
             >
               <ListItem
                 sx={{
-                  width: "40%",
+                  width: "60%",
                 }}
               >
                 <ListItemText>
