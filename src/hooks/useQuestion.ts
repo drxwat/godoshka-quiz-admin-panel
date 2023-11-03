@@ -4,10 +4,11 @@ import { Database } from "../core/client/database.types";
 import { client } from "../core/client/client";
 
 type QuestionRow = Database["public"]["Tables"]["questions"]["Row"];
+type AnswersRow = Database["public"]["Tables"]["answers"]["Row"];
 
 export const useQuestion = () => {
   const { moduleId } = useParams();
-
+  const [answers, setAnswers] = useState<AnswersRow[]>([]);
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
   const [fetchingData, setFetchingData] = useState(true);
 
@@ -16,8 +17,11 @@ export const useQuestion = () => {
       .from("questions")
       .select()
       .eq("module_id", moduleId);
-    if (data) {
+    const answersData = await client.from("answers").select();
+    if (data && answersData.data) {
+      console.log(answersData.data);
       setQuestions(data);
+      setAnswers(answersData.data);
     }
   };
   const refreshQuestion = () => {
@@ -38,5 +42,5 @@ export const useQuestion = () => {
     }
   }, [fetchingData, moduleId]);
 
-  return { questions, refreshQuestion, moduleId };
+  return { questions, refreshQuestion, moduleId, answers };
 };

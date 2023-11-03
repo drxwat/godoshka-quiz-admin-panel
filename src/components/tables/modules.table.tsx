@@ -215,7 +215,7 @@ export const ModulesTable = () => {
         sx={{
           position: "fixed",
           bottom: "16px",
-          right: "16px",
+          right: "48px",
         }}
         onClick={handleOpen}
       >
