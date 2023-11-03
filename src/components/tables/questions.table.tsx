@@ -159,6 +159,7 @@ export const QuestionsTable = () => {
                     }}
                     edge="end"
                     aria-label="Изменить"
+                    color="primary"
                   >
                     <Edit />
                   </IconButton>
@@ -171,6 +172,7 @@ export const QuestionsTable = () => {
                     }}
                     edge="end"
                     aria-label="Удалить"
+                    color="primary"
                   >
                     <Delete />
                   </IconButton>
