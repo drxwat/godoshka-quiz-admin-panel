@@ -140,7 +140,17 @@ export const QuestionsTable = () => {
                   .filter((answer) => answer.question_id === question.id)
                   .map((answer) => {
                     return (
-                      <ListItemText sx={{ width: "34%", textAlign: "center" }}>
+                      <ListItemText
+                        sx={{
+                          width: "34%",
+                          textAlign: "center",
+                          backgroundColor: answer.is_correct
+                            ? "lightgreen"
+                            : "white",
+                          borderRadius: "10px",
+                          padding: 1,
+                        }}
+                      >
                         {answer.text}
                       </ListItemText>
                     );
