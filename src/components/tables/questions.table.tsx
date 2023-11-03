@@ -145,7 +145,7 @@ export const QuestionsTable = () => {
                           width: "34%",
                           textAlign: "center",
                           backgroundColor: answer.is_correct
-                            ? "lightgreen"
+                            ? "lightblue"
                             : "white",
                           borderRadius: "10px",
                           padding: 1,
