@@ -26,9 +26,6 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
 }) => {
   const { question, hanldeSave, handleFieldChange, hanldeUpdate } =
     useAddQuestion(questionId);
-  console.log(questionId);
-  console.log(question);
-
   return (
     <Dialog open={!!formLabel}>
       <form

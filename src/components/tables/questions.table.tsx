@@ -1,12 +1,16 @@
 import {
-  Table,
-  TableCell,
-  TableHead,
-  TableRow,
-  Button,
-  TableBody,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+  Divider,
   Box,
+  Fab,
 } from "@mui/material";
+import { Edit, Delete } from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
+import { motion } from "framer-motion";
 import { useQuestion } from "../../hooks/useQuestion";
 import { useReducer } from "react";
 import { AddUpdateQuestion } from "../forms/add.update.question";
@@ -70,9 +74,8 @@ function reducer(state: StateType, action: ActionType) {
 
 export const QuestionsTable = () => {
   const { handleDelete } = useDeleteQuestion();
-  const { questions, refreshQuestion } = useQuestion();
+  const { questions, refreshQuestion, answers } = useQuestion();
   const [state, dispatch] = useReducer(reducer, initialState);
-
   return (
     <Box>
       <Confirm
@@ -99,73 +102,85 @@ export const QuestionsTable = () => {
           }}
         />
       )}
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Module ID</TableCell>
-            <TableCell>Question text</TableCell>
-            <TableCell>Created date</TableCell>
-            <TableCell>Updated date</TableCell>
-            <TableCell
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
-            >
-              <Button
-                sx={{
-                  width: "50%",
-                }}
-                onClick={() => dispatch({ type: OPEN_ADD_QUESTION })}
-              >
-                Добавить вопрос
-              </Button>
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {questions.map((question) => {
-            return (
-              <TableRow key={question.id}>
-                <TableCell>{question.module_id}</TableCell>
-                <TableCell>
+      <Fab
+        color="primary"
+        aria-label="Add Module"
+        sx={{
+          position: "fixed",
+          bottom: "16px",
+          right: "48px",
+        }}
+        onClick={() => dispatch({ type: OPEN_ADD_QUESTION })}
+      >
+        <AddIcon />
+      </Fab>
+      {questions.map((question, index) => {
+        return (
+          <motion.div
+            key={question.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <List sx={{ display: "flex" }}>
+              <ListItem sx={{ width: "40%" }}>
+                <ListItemText>
                   <Markdown>{question.text}</Markdown>
-                </TableCell>
-                <TableCell>{question.created_at}</TableCell>
-                <TableCell>{question.updated_at}</TableCell>
-                <TableCell>
-                  <Button
-                    sx={{
-                      width: "50%",
-                    }}
+                </ListItemText>
+              </ListItem>
+              <ListItem
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "space-around",
+                  gap: 1,
+                }}
+              >
+                {answers
+                  .filter((answer) => answer.question_id === question.id)
+                  .map((answer) => {
+                    return (
+                      <ListItemText sx={{ width: "34%", textAlign: "center" }}>
+                        {answer.text}
+                      </ListItemText>
+                    );
+                  })}
+              </ListItem>
+              <ListItem>
+                <ListItemSecondaryAction
+                  sx={{ display: "flex", flexDirection: "column" }}
+                >
+                  <IconButton
                     onClick={() => {
                       dispatch({
                         type: OPEN_UPDATE_QUESTION,
                         questionId: question.id,
                       });
                     }}
+                    edge="end"
+                    aria-label="Изменить"
                   >
-                    Изменить
-                  </Button>
-                  <Button
-                    sx={{
-                      width: "33%",
-                    }}
+                    <Edit />
+                  </IconButton>
+                  <IconButton
                     onClick={() => {
                       dispatch({
                         type: OPEN_DELETE_QUESTION,
                         questionId: question.id,
                       });
                     }}
+                    edge="end"
+                    aria-label="Удалить"
                   >
-                    Удалить
-                  </Button>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+                    <Delete />
+                  </IconButton>
+                </ListItemSecondaryAction>
+              </ListItem>
+            </List>
+            {index < questions.length - 1 && <Divider />}
+          </motion.div>
+        );
+      })}
     </Box>
   );
 };

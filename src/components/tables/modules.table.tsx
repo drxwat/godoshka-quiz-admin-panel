@@ -67,9 +67,6 @@ export const ModulesTable = () => {
     }
   };
 
-  let hasEnoughQuestions = true;
-  const switchColor = hasEnoughQuestions ? "primary" : "error";
-
   return (
     <Box>
       <Box sx={{ marginTop: 2 }}>
@@ -117,19 +114,21 @@ export const ModulesTable = () => {
                     </Typography>
                     <Switch
                       checked={module.is_published}
-                      color={switchColor}
+                      color={
+                        getQuestionCount(module.id) >= module.min_questions
+                          ? "primary"
+                          : "error"
+                      }
                       onChange={async () => {
                         if (
                           getQuestionCount(module.id) >= module.min_questions
                         ) {
-                          hasEnoughQuestions = true;
                           await client
                             .from("modules")
                             .update({ is_published: !module.is_published })
                             .eq("id", module.id);
                           refreshModules();
                         } else {
-                          hasEnoughQuestions = false;
                           console.log(
                             `Недостаточно вопросов, добавьте еще ${
                               module.min_questions - getQuestionCount(module.id)
@@ -137,18 +136,22 @@ export const ModulesTable = () => {
                           );
                         }
                       }}
-                      //НЕ ЗАБЫТЬ ТЫКНУТЬ ОБРАБОТЧИК СЮДА!!!!!!
                     />
                   </Box>
                   <Typography variant="body2" color="text.secondary">
                     {module.description ? module.description : "Описания нет"}
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ marginTop: 2 }}
-                  >
-                    Необходимо вопросов: {module.min_questions}
+                  <Typography variant="body2" color="text.secondary">
+                    <span
+                      style={{
+                        color:
+                          getQuestionCount(module.id) >= module.min_questions
+                            ? "inherit"
+                            : "red",
+                      }}
+                    >
+                      Необходимо вопросов: {module.min_questions}
+                    </span>
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Всего вопросов в модуле: {getQuestionCount(module.id)}
@@ -212,7 +215,7 @@ export const ModulesTable = () => {
         sx={{
           position: "fixed",
           bottom: "16px",
-          right: "16px",
+          right: "48px",
         }}
         onClick={handleOpen}
       >
