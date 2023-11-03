@@ -122,8 +122,20 @@ export const QuestionsTable = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <List sx={{ display: "flex" }}>
-              <ListItem sx={{ width: "40%" }}>
+            <List
+              sx={{
+                display: "flex",
+                transition: "background-color 0.3s",
+                "&:hover": {
+                  backgroundColor: "rgba(28, 96, 119, 0.05)", // Легкая подсветка при наведении
+                },
+              }}
+            >
+              <ListItem
+                sx={{
+                  width: "40%",
+                }}
+              >
                 <ListItemText>
                   <Markdown>{question.text}</Markdown>
                 </ListItemText>
