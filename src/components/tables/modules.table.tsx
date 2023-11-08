@@ -1,26 +1,19 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Grid,
-  Switch,
-  Fab,
-} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import { Box, Fab, Grid } from "@mui/material";
 import { motion } from "framer-motion";
-import format from "date-fns/format";
-import { useModules } from "../../hooks/useModules";
-import { AddModulesForm } from "../forms/add.modules";
-import { useDeleteModule } from "../../hooks/useDeleteModule";
 import { useState } from "react";
-import { Confirm } from "../forms/confirm";
-import { UpdateModules } from "../forms/update.modules";
-import { useUpdateModule } from "../../hooks/useUpdateModule";
-import { parseISO } from "date-fns";
 import { useNavigate } from "react-router";
 import { client } from "../../core/client/client";
+import { useDeleteModule } from "../../hooks/useDeleteModule";
+import { useFetchData } from "../../hooks/useFetchData";
+import { useUpdateModule } from "../../hooks/useUpdateModule";
+import { ModuleCard } from "../elements/module.card";
+import { AddModulesForm } from "../forms/add.modules";
+import { Confirm } from "../forms/confirm";
+import { UpdateModules } from "../forms/update.modules";
+
+const fetchModules = async () =>
+  await client.from("modules").select("*,questions(*)").order("created_at");
 
 export const ModulesTable = () => {
   const navigate = useNavigate();
@@ -31,7 +24,13 @@ export const ModulesTable = () => {
     handleDelete,
     moduleIdToDelete,
   } = useDeleteModule();
-  const { modules, refreshModules, questionCountArr } = useModules();
+
+  const {
+    data: modules,
+    refreshData: refreshModules,
+    revertData: revertModulesData,
+  } = useFetchData(fetchModules);
+
   const [open, setOpen] = useState(false);
   const {
     updateOpen,
@@ -50,21 +49,6 @@ export const ModulesTable = () => {
 
   const handleClose = () => {
     setOpen(false);
-  };
-
-  const dateHandler = (date: string) => {
-    return parseISO(date);
-  };
-
-  const getQuestionCount = (moduleId: number) => {
-    const questionCount = questionCountArr?.filter(
-      (item) => item.module_id === moduleId,
-    );
-    if (questionCount) {
-      return questionCount?.length;
-    } else {
-      return 0;
-    }
   };
 
   return (
@@ -102,109 +86,46 @@ export const ModulesTable = () => {
           setUpdateDescription={setUpdateDescription}
         />
         <Grid container spacing={2}>
-          {modules.map((module) => (
+          {modules?.map((module, _, originalModules) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={module.id}>
-              <Card>
-                <CardContent>
-                  <Box
-                    sx={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <Typography variant="h6" component="div">
-                      {module.name}
-                    </Typography>
-                    <Switch
-                      checked={module.is_published}
-                      color={
-                        getQuestionCount(module.id) >= module.min_questions
-                          ? "primary"
-                          : "error"
-                      }
-                      onChange={async () => {
-                        if (
-                          getQuestionCount(module.id) >= module.min_questions
-                        ) {
-                          await client
-                            .from("modules")
-                            .update({ is_published: !module.is_published })
-                            .eq("id", module.id);
-                          refreshModules();
-                        } else {
-                          console.log(
-                            `Недостаточно вопросов, добавьте еще ${
-                              module.min_questions - getQuestionCount(module.id)
-                            } `,
-                          );
-                        }
-                      }}
-                    />
-                  </Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {module.description ? module.description : "Описания нет"}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    <span
-                      style={{
-                        color:
-                          getQuestionCount(module.id) >= module.min_questions
-                            ? "inherit"
-                            : "red",
-                      }}
-                    >
-                      Необходимо вопросов: {module.min_questions}
-                    </span>
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Всего вопросов в модуле: {getQuestionCount(module.id)}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Вопросов в квизе: {module.quiz_question_amount}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Created:{" "}
-                    {format(dateHandler(module.created_at), "dd:MM:yyyy HH:mm")}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Updated:{" "}
-                    {format(dateHandler(module.updated_at), "dd:MM:yyyy HH:mm")}
-                  </Typography>
+              <ModuleCard
+                module={module}
+                onPublishedChanged={async (isPublished) => {
+                  const fakeData = [...originalModules];
+                  const idx = originalModules.findIndex(
+                    ({ id }) => id === module.id,
+                  );
+                  fakeData.splice(idx, 1, {
+                    ...module,
+                    is_published: isPublished,
+                  });
+                  refreshModules({ fakeData, revalidate: false });
 
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-around",
-                      gap: 2,
-                      marginTop: 2,
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      onClick={() => navigate(`/questions/${module.id}`)}
-                    >
-                      Перейти
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        setModuleIdToUpdate(module.id);
-                        setUpdateName(module.name);
-                        setUpdateDescription(module.description);
-                        setUpdateOpen(true);
-                      }}
-                    >
-                      Изменить
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        setModuleIdToDelete(module.id);
-                        setConfirmOpen(true);
-                      }}
-                    >
-                      Удалить
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
+                  try {
+                    await client
+                      .from("modules")
+                      .update({ is_published: isPublished })
+                      .eq("id", module.id);
+                  } catch (error) {
+                    revertModulesData();
+                  }
+
+                  refreshModules();
+                }}
+                onSelect={() => {
+                  navigate(`/questions/${module.id}`);
+                }}
+                onEdit={() => {
+                  setModuleIdToUpdate(module.id);
+                  setUpdateName(module.name);
+                  setUpdateDescription(module.description);
+                  setUpdateOpen(true);
+                }}
+                onDelete={() => {
+                  setModuleIdToDelete(module.id);
+                  setConfirmOpen(true);
+                }}
+              />
             </Grid>
           ))}
         </Grid>

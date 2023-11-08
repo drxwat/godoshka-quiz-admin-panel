@@ -1,27 +1,22 @@
-import { Database } from "./../core/client/database.types";
 import { useEffect, useState } from "react";
 import { client } from "../core/client/client";
+import { ModuleWithQuestions } from "../core/client/types";
 
-type Row = Database["public"]["Tables"]["modules"]["Row"];
 export const useModules = () => {
-  const [modules, setModules] = useState<Row[]>([]);
-  const [questionCountArr, setQuestionCountArr] =
-    useState<{ module_id: number }[]>();
+  const [modules, setModules] = useState<ModuleWithQuestions[]>([]);
   const [fetchingData, setFetchingData] = useState(true);
 
   const getModulesList = async () => {
-    const { data } = await client.from("modules").select();
-    const questionCount = await client
-      .from("questions")
-      .select("module_id", { count: "exact" });
-    if (data && questionCount.data) {
+    const { data } = await client.from("modules").select("*,questions(*)");
+    if (data) {
       setModules(data);
-      setQuestionCountArr(questionCount.data);
     }
   };
+
   const refreshModules = () => {
     setFetchingData(true);
   };
+
   useEffect(() => {
     if (fetchingData) {
       try {
@@ -36,5 +31,5 @@ export const useModules = () => {
     }
   }, [fetchingData]);
 
-  return { modules, refreshModules, questionCountArr };
+  return { modules, refreshModules };
 };
