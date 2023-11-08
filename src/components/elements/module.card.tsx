@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   CardContent,
+  Stack,
   Switch,
   Typography,
 } from "@mui/material";
@@ -73,20 +74,24 @@ export const ModuleCard: FC<{
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-around",
+            justifyContent: "space-between",
             gap: 2,
             marginTop: 2,
           }}
         >
-          <Button variant="contained" onClick={onSelect}>
-            Перейти
-          </Button>
-          <Button variant="contained" onClick={onEdit}>
-            Изменить
-          </Button>
-          <Button variant="contained" onClick={onDelete}>
-            Удалить
-          </Button>
+          <Stack direction="row" spacing={2}>
+            <Button variant="contained" onClick={onSelect}>
+              Перейти
+            </Button>
+            <Button variant="contained" onClick={onEdit}>
+              Изменить
+            </Button>
+          </Stack>
+          <Box>
+            <Button variant="contained" color="error" onClick={onDelete}>
+              Удалить
+            </Button>
+          </Box>
         </Box>
       </CardContent>
     </Card>

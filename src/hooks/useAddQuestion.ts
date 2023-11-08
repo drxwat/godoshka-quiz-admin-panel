@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
 import { client } from "../core/client/client";
 import { useParams } from "react-router";
-import { Database } from "../core/client/database.types";
-
-type AnswerInsert = Omit<
-  Database["public"]["Tables"]["answers"]["Insert"],
-  "question_id"
->;
-
-type QuestionInsert = Database["public"]["Tables"]["questions"]["Insert"];
-type QuestionWithAnswers = QuestionInsert & { answers: AnswerInsert[] };
+import { AnswerInsert, QuestionWithAnswers } from "../core/client/types";
 
 const INITIAL_TIME_TO_ANSWER = 20;
 const INITIAL_ANSWERS: AnswerInsert[] = [

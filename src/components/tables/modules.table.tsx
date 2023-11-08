@@ -11,11 +11,12 @@ import { ModuleCard } from "../elements/module.card";
 import { AddModulesForm } from "../forms/add.modules";
 import { Confirm } from "../forms/confirm";
 import { UpdateModules } from "../forms/update.modules";
+import { Loader } from "../elements/loader";
 
 const fetchModules = async () =>
   await client.from("modules").select("*,questions(*)").order("created_at");
 
-export const ModulesTable = () => {
+const ModulesTable = () => {
   const navigate = useNavigate();
   const {
     confirmOpen,
@@ -51,9 +52,13 @@ export const ModulesTable = () => {
     setOpen(false);
   };
 
+  if (!modules) {
+    return <Loader />;
+  }
+
   return (
     <Box>
-      <Box sx={{ marginTop: 2 }}>
+      <Box sx={{ m: 2 }}>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -145,3 +150,5 @@ export const ModulesTable = () => {
     </Box>
   );
 };
+
+export default ModulesTable;

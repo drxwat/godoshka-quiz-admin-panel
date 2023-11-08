@@ -1,22 +1,26 @@
+import { Delete, Edit } from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
 import {
+  Box,
+  Divider,
+  Fab,
+  IconButton,
   List,
   ListItem,
-  ListItemText,
   ListItemSecondaryAction,
-  IconButton,
-  Divider,
-  Box,
-  Fab,
+  ListItemText,
 } from "@mui/material";
-import { Edit, Delete } from "@mui/icons-material";
-import AddIcon from "@mui/icons-material/Add";
 import { motion } from "framer-motion";
-import { useQuestion } from "../../hooks/useQuestion";
-import { useReducer } from "react";
+import { useCallback, useReducer } from "react";
+import Markdown from "react-markdown";
+import { useParams } from "react-router";
+import { client } from "../../core/client/client";
+import { useDeleteQuestion } from "../../hooks/useDeleteQuestion";
+import { useFetchData } from "../../hooks/useFetchData";
 import { AddUpdateQuestion } from "../forms/add.update.question";
 import { Confirm } from "../forms/confirm";
-import { useDeleteQuestion } from "../../hooks/useDeleteQuestion";
-import Markdown from "react-markdown";
+import { Loader } from "../elements/loader";
+import { QuestionUpdateWithAnswers } from "../../core/client/types";
 
 const OPEN_ADD_QUESTION = "OPEN_ADD_QUESTION";
 const OPEN_UPDATE_QUESTION = "OPEN_UPDATE_QUESTION";
@@ -72,10 +76,28 @@ function reducer(state: StateType, action: ActionType) {
   }
 }
 
-export const QuestionsTable = () => {
+const QuestionsTable = () => {
+  const { moduleId } = useParams();
+
+  const fetchQuestions = useCallback(
+    async () =>
+      await client
+        .from("questions")
+        .select("*, answers(*)")
+        .eq("module_id", moduleId ?? -1)
+        .order("created_at"),
+    [moduleId],
+  );
+
   const { handleDelete } = useDeleteQuestion();
-  const { questions, refreshQuestion, answers } = useQuestion();
+  const { data: questions, refreshData: refreshQuestion } =
+    useFetchData(fetchQuestions);
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  if (!questions) {
+    return <Loader />;
+  }
+
   return (
     <Box>
       <Confirm
@@ -96,9 +118,20 @@ export const QuestionsTable = () => {
               : "Добавить вопрос"
           }
           questionId={state.questionId}
-          close={() => {
+          onClose={(reason) => {
+            if (reason === "submit") {
+              refreshQuestion();
+            }
             dispatch({ type: CLOSE_FORM });
-            refreshQuestion();
+          }}
+          onSubmit={(question) => {
+            if (question.id && question.created_at) {
+              const fakeData = [...questions];
+              const idx = questions.findIndex(({ id }) => id === question.id);
+              fakeData.splice(idx, 1, question as QuestionUpdateWithAnswers);
+              refreshQuestion({ fakeData, revalidate: false });
+            }
+            dispatch({ type: CLOSE_FORM });
           }}
         />
       )}
@@ -148,25 +181,23 @@ export const QuestionsTable = () => {
                   gap: 1,
                 }}
               >
-                {answers
-                  .filter((answer) => answer.question_id === question.id)
-                  .map((answer) => {
-                    return (
-                      <ListItemText
-                        sx={{
-                          width: "34%",
-                          textAlign: "center",
-                          backgroundColor: answer.is_correct
-                            ? "lightblue"
-                            : "white",
-                          borderRadius: "10px",
-                          padding: 1,
-                        }}
-                      >
-                        {answer.text}
-                      </ListItemText>
-                    );
-                  })}
+                {question.answers.map((answer) => {
+                  return (
+                    <ListItemText
+                      sx={{
+                        width: "34%",
+                        textAlign: "center",
+                        backgroundColor: answer.is_correct
+                          ? "lightblue"
+                          : "white",
+                        borderRadius: "10px",
+                        padding: 1,
+                      }}
+                    >
+                      {answer.text}
+                    </ListItemText>
+                  );
+                })}
               </ListItem>
               <ListItem>
                 <ListItemSecondaryAction
@@ -208,3 +239,5 @@ export const QuestionsTable = () => {
     </Box>
   );
 };
+
+export default QuestionsTable;

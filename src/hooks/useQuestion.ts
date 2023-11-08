@@ -19,7 +19,7 @@ export const useQuestion = () => {
       .eq("module_id", moduleId);
     const answersData = await client.from("answers").select();
     if (data && answersData.data) {
-      console.log(answersData.data);
+      // console.log(answersData.data);
       setQuestions(data);
       setAnswers(answersData.data);
     }

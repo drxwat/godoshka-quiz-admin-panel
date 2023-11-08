@@ -12,17 +12,20 @@ import {
   styled,
 } from "@mui/material";
 import { useAddQuestion } from "../../hooks/useAddQuestion";
+import { QuestionWithAnswers } from "../../core/client/types";
 
 interface AddUpdateQuestionProps {
   formLabel: string;
   questionId?: number;
-  close: () => void;
+  onClose: (reason: "close" | "submit") => void;
+  onSubmit: (question: QuestionWithAnswers) => void;
 }
 
 export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
   questionId,
   formLabel,
-  close,
+  onClose,
+  onSubmit,
 }) => {
   const { question, hanldeSave, handleFieldChange, hanldeUpdate } =
     useAddQuestion(questionId);
@@ -30,14 +33,13 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
     <Dialog open={!!formLabel}>
       <form
         onSubmit={async () => {
-          console.log(formLabel);
+          onSubmit(question);
           if (formLabel === "Добавить вопрос") {
             await hanldeSave();
           } else {
             await hanldeUpdate();
           }
-
-          close();
+          onClose("submit");
         }}
       >
         <DialogContent>
@@ -105,7 +107,7 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
         </Box>
 
         <DialogActions>
-          <Button color="primary" onClick={close}>
+          <Button color="primary" onClick={() => onClose("close")}>
             Отмена
           </Button>
           <Button
