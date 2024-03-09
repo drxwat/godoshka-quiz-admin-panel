@@ -16,3 +16,5 @@ export type QuestionInsert =
 export type QuestionWithAnswers = QuestionInsert & { answers: AnswerInsert[] };
 
 export type QuestionUpdateWithAnswers = Question & { answers: Answer[] };
+
+export type Tables = keyof Database["public"]["Tables"];

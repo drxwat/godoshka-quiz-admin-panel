@@ -1,17 +1,17 @@
 import AddIcon from "@mui/icons-material/Add";
-import { Box, Fab, Grid } from "@mui/material";
+import { Box, Fab, Grid, LinearProgress } from "@mui/material";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { client } from "../../core/client/client";
 import { useDeleteModule } from "../../hooks/useDeleteModule";
-import { useFetchData } from "../../hooks/useFetchData";
 import { useUpdateModule } from "../../hooks/useUpdateModule";
 import { ModuleCard } from "../elements/module.card";
 import { AddModulesForm } from "../forms/add.modules";
 import { Confirm } from "../forms/confirm";
 import { UpdateModules } from "../forms/update.modules";
 import { Loader } from "../elements/loader";
+import { useSWRTable } from "../../core/client/swr";
 
 const fetchModules = async () =>
   await client.from("modules").select("*,questions(*)").order("created_at");
@@ -19,18 +19,18 @@ const fetchModules = async () =>
 const ModulesTable = () => {
   const navigate = useNavigate();
   const {
+    data: modules,
+    mutate,
+    isValidating,
+  } = useSWRTable("modules", fetchModules);
+
+  const {
     confirmOpen,
     setConfirmOpen,
     setModuleIdToDelete,
     handleDelete,
     moduleIdToDelete,
   } = useDeleteModule();
-
-  const {
-    data: modules,
-    refreshData: refreshModules,
-    revertData: revertModulesData,
-  } = useFetchData(fetchModules);
 
   const [open, setOpen] = useState(false);
   const {
@@ -58,6 +58,7 @@ const ModulesTable = () => {
 
   return (
     <Box>
+      {isValidating && <LinearProgress color="secondary" />}
       <Box sx={{ m: 2 }}>
         <motion.div
           initial={{ opacity: 0 }}
@@ -67,7 +68,7 @@ const ModulesTable = () => {
           <AddModulesForm
             open={open}
             handleClose={handleClose}
-            refreshModules={refreshModules}
+            refreshModules={mutate}
           />
         </motion.div>
         <Confirm
@@ -75,7 +76,7 @@ const ModulesTable = () => {
           handleClose={() => setConfirmOpen(false)}
           handleDelete={async () => {
             await handleDelete(moduleIdToDelete);
-            refreshModules();
+            mutate();
           }}
         />
         <UpdateModules
@@ -85,37 +86,28 @@ const ModulesTable = () => {
           updateDescription={updateDescription}
           handleUpdate={async () => {
             await handleUpdate();
-            refreshModules();
+            mutate();
           }}
           setUpdateName={setUpdateName}
           setUpdateDescription={setUpdateDescription}
         />
         <Grid container spacing={2}>
-          {modules?.map((module, _, originalModules) => (
+          {modules?.map((module) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={module.id}>
               <ModuleCard
                 module={module}
                 onPublishedChanged={async (isPublished) => {
-                  const fakeData = [...originalModules];
-                  const idx = originalModules.findIndex(
-                    ({ id }) => id === module.id,
-                  );
-                  fakeData.splice(idx, 1, {
-                    ...module,
-                    is_published: isPublished,
-                  });
-                  refreshModules({ fakeData, revalidate: false });
-
                   try {
                     await client
                       .from("modules")
                       .update({ is_published: isPublished })
                       .eq("id", module.id);
+                    mutate();
                   } catch (error) {
-                    revertModulesData();
+                    mutate();
                   }
 
-                  refreshModules();
+                  // refreshModules();
                 }}
                 onSelect={() => {
                   navigate(`/questions/${module.id}`);
