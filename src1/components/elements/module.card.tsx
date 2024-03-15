@@ -11,8 +11,6 @@ import format from "date-fns/format";
 import { FC } from "react";
 import { ModuleWithQuestions } from "../../core/client/types";
 import { parseISO } from "date-fns";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import moduleService from "../../api/services/module.service";
 
 const dateHandler = (date: string) => {
   return parseISO(date);
@@ -20,24 +18,11 @@ const dateHandler = (date: string) => {
 
 export const ModuleCard: FC<{
   module: ModuleWithQuestions;
+  onPublishedChanged: (isPublished: boolean) => void;
   onSelect: () => void;
   onEdit: () => void;
-}> = ({ module, onSelect, onEdit }) => {
-  const queryClient = useQueryClient();
-
-  const { mutate: remove } = useMutation({
-    mutationKey: ["modules"],
-    mutationFn: (id: number) => moduleService.remove(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["modules"] }),
-  });
-
-  const { mutate: published } = useMutation({
-    mutationKey: ["modules"],
-    mutationFn: (isPublished: boolean) =>
-      moduleService.published(isPublished, module.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["modules"] }),
-  });
-
+  onDelete: () => void;
+}> = ({ module, onPublishedChanged, onSelect, onEdit, onDelete }) => {
   return (
     <Card>
       <CardContent>
@@ -53,8 +38,8 @@ export const ModuleCard: FC<{
                 ? "primary"
                 : "error"
             }
-            onChange={() => {
-              published(!module.is_published);
+            onChange={async () => {
+              onPublishedChanged(!module.is_published);
             }}
           />
         </Box>
@@ -103,11 +88,7 @@ export const ModuleCard: FC<{
             </Button>
           </Stack>
           <Box>
-            <Button
-              variant="contained"
-              color="error"
-              onClick={() => remove(module.id)}
-            >
+            <Button variant="contained" color="error" onClick={onDelete}>
               Удалить
             </Button>
           </Box>
