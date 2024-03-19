@@ -6,31 +6,29 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { ModuleInsert } from "../../helpers/types";
-import moduleService from "../../api/services/module.service";
-import { useOptimisticAdd } from "../../hooks/useOptimisticAdd";
+import { useAddModule } from "../../hooks/useAddModule";
 
 interface AddModulesFormProps {
   open: boolean;
   handleClose: () => void;
+  refreshModules: () => void;
 }
 
 export const AddModulesForm: React.FC<AddModulesFormProps> = ({
   open,
   handleClose,
+  refreshModules,
 }) => {
-  const { mutate: add } = useOptimisticAdd(moduleService.add, "modules");
-
-  const { register, handleSubmit } = useForm<ModuleInsert>();
-
-  const onSubmit: SubmitHandler<ModuleInsert> = (data) => {
-    add(data);
-  };
+  const { module, handleFieldChange, handleSave } = useAddModule();
 
   return (
     <Dialog open={open} onClose={handleClose}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        onSubmit={async () => {
+          await handleSave();
+          refreshModules();
+        }}
+      >
         <DialogContent
           sx={{
             display: "flex",
@@ -48,17 +46,33 @@ export const AddModulesForm: React.FC<AddModulesFormProps> = ({
           <TextField
             label="Название модуля"
             sx={{ marginBottom: 1 }}
-            {...register("name")}
+            value={module.name}
+            onChange={({ target: { value } }) => {
+              handleFieldChange("name", value);
+            }}
           />
-          <TextField label="Описание" sx={{ marginBottom: 1 }} />
+          <TextField
+            label="Описание"
+            sx={{ marginBottom: 1 }}
+            value={module.description}
+            onChange={({ target: { value } }) => {
+              handleFieldChange("description", value);
+            }}
+          />
           <TextField
             label="Необходимо вопросов"
             sx={{ marginBottom: 1 }}
-            {...register("min_questions")}
+            value={module.min_questions}
+            onChange={({ target: { value } }) => {
+              handleFieldChange("min_questions", +value);
+            }}
           />
           <TextField
             label="Вопросов в квизе"
-            {...register("quiz_question_amount")}
+            value={module.quiz_question_amount}
+            onChange={({ target: { value } }) => {
+              handleFieldChange("quiz_question_amount", +value);
+            }}
           />
           <DialogActions>
             <Button color="primary" type="submit" onClick={handleClose}>

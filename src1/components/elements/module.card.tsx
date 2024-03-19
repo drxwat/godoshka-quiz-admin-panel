@@ -11,32 +11,18 @@ import format from "date-fns/format";
 import { FC } from "react";
 import { ModuleWithQuestions } from "../../core/client/types";
 import { parseISO } from "date-fns";
-import moduleService from "../../api/services/module.service";
-import { useOptimisticUpdate } from "../../hooks/useOptimisticUpdate";
-import { useOptimisticRemove } from "../../hooks/useOptimisticRemove";
+
+const dateHandler = (date: string) => {
+  return parseISO(date);
+};
 
 export const ModuleCard: FC<{
   module: ModuleWithQuestions;
+  onPublishedChanged: (isPublished: boolean) => void;
   onSelect: () => void;
   onEdit: () => void;
-}> = ({ module, onSelect, onEdit }) => {
-  const { mutate: remove } = useOptimisticRemove(
-    moduleService.remove,
-    "modules",
-  );
-  const { mutate: published } = useOptimisticUpdate(
-    moduleService.published,
-    "modules",
-  );
-  const dateHandler = (date: string) => {
-    return parseISO(date);
-  };
-
-  const questionCount = (module: ModuleWithQuestions) => {
-    if (!module.questions || module.questions === undefined) return 0;
-    return module.questions.length;
-  };
-
+  onDelete: () => void;
+}> = ({ module, onPublishedChanged, onSelect, onEdit, onDelete }) => {
   return (
     <Card>
       <CardContent>
@@ -46,15 +32,14 @@ export const ModuleCard: FC<{
           </Typography>
           <Switch
             checked={module.is_published}
-            disabled={questionCount(module) < module.min_questions}
+            disabled={module.questions.length < module.min_questions}
             color={
-              questionCount(module) >= module.min_questions
+              module.questions.length >= module.min_questions
                 ? "primary"
                 : "error"
             }
-            onChange={() => {
-              console.log("before", module.is_published);
-              published({ ...module, is_published: !module.is_published });
+            onChange={async () => {
+              onPublishedChanged(!module.is_published);
             }}
           />
         </Box>
@@ -65,7 +50,7 @@ export const ModuleCard: FC<{
           <span
             style={{
               color:
-                questionCount(module) >= module.min_questions
+                module.questions.length >= module.min_questions
                   ? "inherit"
                   : "red",
             }}
@@ -74,16 +59,16 @@ export const ModuleCard: FC<{
           </span>
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Всего вопросов в модуле: {questionCount(module)}
+          Всего вопросов в модуле: {module.questions.length}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           Вопросов в квизе: {module.quiz_question_amount}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Добавлен:{" "}
-          {module.created_at
-            ? format(dateHandler(module.created_at), "dd:MM:yyyy HH:mm")
-            : "Loading..."}
+          Created: {format(dateHandler(module.created_at), "dd:MM:yyyy HH:mm")}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Updated: {format(dateHandler(module.updated_at), "dd:MM:yyyy HH:mm")}
         </Typography>
 
         <Box
@@ -103,13 +88,7 @@ export const ModuleCard: FC<{
             </Button>
           </Stack>
           <Box>
-            <Button
-              variant="contained"
-              color="error"
-              onClick={() => {
-                remove(module);
-              }}
-            >
+            <Button variant="contained" color="error" onClick={onDelete}>
               Удалить
             </Button>
           </Box>

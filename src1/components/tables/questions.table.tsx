@@ -15,8 +15,10 @@ import { useCallback, useReducer } from "react";
 import Markdown from "react-markdown";
 import { useParams } from "react-router";
 import { client } from "../../core/client/client";
+import { useDeleteQuestion } from "../../hooks/useDeleteQuestion";
 import { useFetchData } from "../../hooks/useFetchData";
 import { AddUpdateQuestion } from "../forms/add.update.question";
+import { Confirm } from "../forms/confirm";
 import { Loader } from "../elements/loader";
 import { QuestionUpdateWithAnswers } from "../../core/client/types";
 
@@ -87,6 +89,7 @@ const QuestionsTable = () => {
     [moduleId],
   );
 
+  const { handleDelete } = useDeleteQuestion();
   const { data: questions, refreshData: refreshQuestion } =
     useFetchData(fetchQuestions);
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -97,7 +100,7 @@ const QuestionsTable = () => {
 
   return (
     <Box>
-      {/* <Confirm
+      <Confirm
         open={state.formType === "delete"}
         handleClose={() => dispatch({ type: CLOSE_FORM })}
         handleDelete={async () => {
@@ -106,7 +109,7 @@ const QuestionsTable = () => {
             refreshQuestion();
           }
         }}
-      /> */}
+      />
       {(state.formType === "update" || state.formType === "add") && (
         <AddUpdateQuestion
           formLabel={
