@@ -15,7 +15,7 @@ export const NavigationPanel = () => {
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1, marginBottom: 5 }}>
       <AppBar position="static">
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <IconButton

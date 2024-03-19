@@ -7,3 +7,5 @@ export type variable =
   | TablesUpdate<"modules">
   | TablesUpdate<"answers">
   | TablesUpdate<"questions">;
+
+export type IModule = Database["public"]["Tables"]["modules"]["Row"];

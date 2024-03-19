@@ -1,8 +1,5 @@
 import { client } from "../../core/client/client";
-import { Database } from "../../core/client/database.types";
-import { ModuleInsert, ModuleUpdate } from "../../helpers/types";
-
-type IModule = Database["public"]["Tables"]["modules"]["Row"];
+import { IModule, ModuleInsert, ModuleUpdate } from "../../helpers/types";
 
 class ModuleService {
   async getAllModulesWithQuestions() {
@@ -18,14 +15,17 @@ class ModuleService {
     return data;
   }
   async remove(module: IModule) {
-    return await client.from("modules").delete().eq("id", module.id);
+    const { data } = await client.from("modules").delete().eq("id", module.id);
+
+    return data;
   }
 
-  async published(module: ModuleUpdate) {
-    return await client
+  async update(module: ModuleUpdate) {
+    const { data } = await client
       .from("modules")
-      .update({ is_published: module.is_published })
+      .update({ ...module })
       .eq("id", module.id!);
+    return data;
   }
 }
 
