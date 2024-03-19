@@ -11,32 +11,31 @@ import format from "date-fns/format";
 import { FC } from "react";
 import { ModuleWithQuestions } from "../../core/client/types";
 import { parseISO } from "date-fns";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import moduleService from "../../api/services/module.service";
-
-const dateHandler = (date: string) => {
-  return parseISO(date);
-};
+import { useOptimisticUpdate } from "../../hooks/useOptimisticUpdate";
+import { useOptimisticRemove } from "../../hooks/useOptimisticRemove";
 
 export const ModuleCard: FC<{
   module: ModuleWithQuestions;
   onSelect: () => void;
   onEdit: () => void;
 }> = ({ module, onSelect, onEdit }) => {
-  const queryClient = useQueryClient();
+  const { mutate: remove } = useOptimisticRemove(
+    moduleService.remove,
+    "modules",
+  );
+  const { mutate: published } = useOptimisticUpdate(
+    moduleService.published,
+    "modules",
+  );
+  const dateHandler = (date: string) => {
+    return parseISO(date);
+  };
 
-  const { mutate: remove } = useMutation({
-    mutationKey: ["modules"],
-    mutationFn: (id: number) => moduleService.remove(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["modules"] }),
-  });
-
-  const { mutate: published } = useMutation({
-    mutationKey: ["modules"],
-    mutationFn: (isPublished: boolean) =>
-      moduleService.published(isPublished, module.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["modules"] }),
-  });
+  const questionCount = (module: ModuleWithQuestions) => {
+    if (!module.questions || module.questions === undefined) return 0;
+    return module.questions.length;
+  };
 
   return (
     <Card>
@@ -47,14 +46,15 @@ export const ModuleCard: FC<{
           </Typography>
           <Switch
             checked={module.is_published}
-            disabled={module.questions.length < module.min_questions}
+            disabled={questionCount(module) < module.min_questions}
             color={
-              module.questions.length >= module.min_questions
+              questionCount(module) >= module.min_questions
                 ? "primary"
                 : "error"
             }
             onChange={() => {
-              published(!module.is_published);
+              console.log("before", module.is_published);
+              published({ ...module, is_published: !module.is_published });
             }}
           />
         </Box>
@@ -65,7 +65,7 @@ export const ModuleCard: FC<{
           <span
             style={{
               color:
-                module.questions.length >= module.min_questions
+                questionCount(module) >= module.min_questions
                   ? "inherit"
                   : "red",
             }}
@@ -74,16 +74,16 @@ export const ModuleCard: FC<{
           </span>
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Всего вопросов в модуле: {module.questions.length}
+          Всего вопросов в модуле: {questionCount(module)}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           Вопросов в квизе: {module.quiz_question_amount}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Created: {format(dateHandler(module.created_at), "dd:MM:yyyy HH:mm")}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Updated: {format(dateHandler(module.updated_at), "dd:MM:yyyy HH:mm")}
+          Добавлен:{" "}
+          {module.created_at
+            ? format(dateHandler(module.created_at), "dd:MM:yyyy HH:mm")
+            : "Loading..."}
         </Typography>
 
         <Box
@@ -106,7 +106,9 @@ export const ModuleCard: FC<{
             <Button
               variant="contained"
               color="error"
-              onClick={() => remove(module.id)}
+              onClick={() => {
+                remove(module);
+              }}
             >
               Удалить
             </Button>

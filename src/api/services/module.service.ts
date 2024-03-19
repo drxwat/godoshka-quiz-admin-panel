@@ -1,26 +1,31 @@
 import { client } from "../../core/client/client";
-import { ModuleInsert } from "../../helpers/types";
+import { Database } from "../../core/client/database.types";
+import { ModuleInsert, ModuleUpdate } from "../../helpers/types";
+
+type IModule = Database["public"]["Tables"]["modules"]["Row"];
 
 class ModuleService {
   async getAllModulesWithQuestions() {
-    return await client
+    const { data } = await client
       .from("modules")
       .select("*,questions(*)")
       .order("created_at");
+    return data;
   }
 
   async add(module: ModuleInsert) {
-    return await client.from("modules").insert([module]);
+    const { data } = await client.from("modules").insert([module]);
+    return data;
   }
-  async remove(id: number) {
-    return await client.from("modules").delete().eq("id", id);
+  async remove(module: IModule) {
+    return await client.from("modules").delete().eq("id", module.id);
   }
 
-  async published(isPublished: boolean, id: number) {
+  async published(module: ModuleUpdate) {
     return await client
       .from("modules")
-      .update({ is_published: isPublished })
-      .eq("id", id);
+      .update({ is_published: module.is_published })
+      .eq("id", module.id!);
   }
 }
 

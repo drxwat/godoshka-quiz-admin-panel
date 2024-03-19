@@ -8,8 +8,8 @@ import {
 } from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { ModuleInsert } from "../../helpers/types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import moduleService from "../../api/services/module.service";
+import { useOptimisticAdd } from "../../hooks/useOptimisticAdd";
 
 interface AddModulesFormProps {
   open: boolean;
@@ -20,13 +20,7 @@ export const AddModulesForm: React.FC<AddModulesFormProps> = ({
   open,
   handleClose,
 }) => {
-  const queryClient = useQueryClient();
-
-  const { mutate: add } = useMutation({
-    mutationKey: ["modules"],
-    mutationFn: (module: ModuleInsert) => moduleService.add(module),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["modules"] }),
-  });
+  const { mutate: add } = useOptimisticAdd(moduleService.add, "modules");
 
   const { register, handleSubmit } = useForm<ModuleInsert>();
 

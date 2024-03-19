@@ -38,6 +38,8 @@ const ModulesTable = () => {
     return <Loader />;
   }
 
+  console.log(modules[1].is_published);
+
   return (
     <Box>
       {/* {isValidating && <LinearProgress color="secondary" />} */}

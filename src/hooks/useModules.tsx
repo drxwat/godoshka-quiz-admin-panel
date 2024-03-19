@@ -5,6 +5,5 @@ export const useModules = () => {
   return useQuery({
     queryKey: ["modules"],
     queryFn: () => moduleService.getAllModulesWithQuestions(),
-    select: ({ data }) => data,
   });
 };
