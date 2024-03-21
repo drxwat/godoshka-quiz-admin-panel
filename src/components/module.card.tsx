@@ -12,23 +12,26 @@ import { FC } from "react";
 import { ModuleWithQuestions } from "../core/client/types";
 import { parseISO } from "date-fns";
 import moduleService from "../api/services/module.service";
-import { useOptimisticUpdate } from "../hooks/useOptimisticUpdate";
-import { useOptimisticRemove } from "../hooks/useOptimisticRemove";
 import { QueryKeys } from "../helpers/types";
+import { useOptimisticMutation } from "../hooks/useOptimisticMutation";
+import optimisticActions from "../api/optimisticActions";
 
 export const ModuleCard: FC<{
   module: ModuleWithQuestions;
   onSelect: () => void;
   onEdit: () => void;
 }> = ({ module, onSelect, onEdit }) => {
-  const { mutate: remove } = useOptimisticRemove(
-    moduleService.remove,
-    QueryKeys.modules,
-  );
-  const { mutate: published } = useOptimisticUpdate(
-    moduleService.update,
-    QueryKeys.modules,
-  );
+  const { mutate: published } = useOptimisticMutation({
+    mutationKey: QueryKeys.modules,
+    updateFunc: moduleService.update,
+    optimisticUpdateFn: optimisticActions.update,
+  });
+  const { mutate: remove } = useOptimisticMutation({
+    mutationKey: QueryKeys.modules,
+    updateFunc: moduleService.remove,
+    optimisticUpdateFn: optimisticActions.remove,
+  });
+
   const dateHandler = (date: string) => {
     return parseISO(date);
   };

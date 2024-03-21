@@ -15,11 +15,11 @@ import {
   QuestionWithAnswers,
 } from "../../core/client/types";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useOptimisticAdd } from "../../hooks/useOptimisticAdd";
 import questionService from "../../api/services/question.service";
 import { QueryKeys } from "../../helpers/types";
+import optimisticActions from "../../api/optimisticActions";
 import { useParams } from "react-router";
-import { useOptimisticUpdate } from "../../hooks/useOptimisticUpdate";
+import { useOptimisticMutation } from "../../hooks/useOptimisticMutation";
 
 interface AddUpdateQuestionProps {
   open: boolean;
@@ -33,14 +33,18 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
   question,
 }) => {
   const { moduleId } = useParams();
-  const { mutate: add } = useOptimisticAdd(
-    questionService.add,
-    QueryKeys.questions,
-  );
-  const { mutate: update } = useOptimisticUpdate(
-    questionService.update,
-    QueryKeys.questions,
-  );
+
+  const { mutate: add } = useOptimisticMutation({
+    mutationKey: QueryKeys.questions,
+    updateFunc: questionService.add,
+    optimisticUpdateFn: optimisticActions.add,
+  });
+  const { mutate: update } = useOptimisticMutation({
+    mutationKey: QueryKeys.questions,
+    updateFunc: questionService.update,
+    optimisticUpdateFn: optimisticActions.update,
+  });
+
   const { register, handleSubmit, setValue, reset } =
     useForm<QuestionUpdateWithAnswers>();
 
@@ -155,7 +159,13 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
           </BoxOptions>
         </DialogContent>
         <DialogActions>
-          <Button color="primary" onClick={handleClose}>
+          <Button
+            color="primary"
+            onClick={() => {
+              reset();
+              handleClose();
+            }}
+          >
             Отмена
           </Button>
           <Button color="primary" type="submit">

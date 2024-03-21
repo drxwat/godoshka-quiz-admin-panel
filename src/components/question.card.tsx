@@ -12,8 +12,9 @@ import {
 import Markdown from "react-markdown";
 import { QuestionWithAnswers } from "../core/client/types";
 import { QueryKeys } from "../helpers/types";
-import { useOptimisticRemove } from "../hooks/useOptimisticRemove";
 import questionService from "../api/services/question.service";
+import { useOptimisticMutation } from "../hooks/useOptimisticMutation";
+import optimisticActions from "../api/optimisticActions";
 
 interface IQuestionCard {
   question: QuestionWithAnswers;
@@ -26,10 +27,11 @@ export const QuestionCard: React.FC<IQuestionCard> = ({
   onEdit,
   isFetching,
 }) => {
-  const { mutate: remove } = useOptimisticRemove(
-    questionService.remove,
-    QueryKeys.questions,
-  );
+  const { mutate: remove } = useOptimisticMutation({
+    mutationKey: QueryKeys.questions,
+    updateFunc: questionService.remove,
+    optimisticUpdateFn: optimisticActions.remove,
+  });
   return (
     <Card
       style={{

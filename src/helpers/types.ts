@@ -1,3 +1,4 @@
+import { MutationFunction } from "@tanstack/query-core";
 import { Database, TablesUpdate } from "../core/client/database.types";
 import { ModuleWithQuestions, QuestionWithAnswers } from "../core/client/types";
 
@@ -20,3 +21,11 @@ export interface IFormState {
   open: boolean;
   data?: ModuleWithQuestions | QuestionWithAnswers;
 }
+
+export type MutateFunc<D, V extends variable> = MutationFunction<D, V>;
+
+export type OptimisticMutationOptions<D, V extends variable> = {
+  updateFunc: MutateFunc<D, V>;
+  key: QueryKeys;
+  optimisticUpdateFn: (variables: V, oldData: variable[]) => variable[];
+};
