@@ -48,30 +48,13 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
   const { register, handleSubmit, setValue, reset } =
     useForm<QuestionUpdateWithAnswers>();
 
-  if (question && question !== undefined) {
+  if (question) {
     setValue("text", question.text || "");
     setValue("time_to_answer", question.time_to_answer || 10);
-    setValue(
-      `answers.${0}.is_correct`,
-      question.answers[0]?.is_correct || false,
-    );
-
-    setValue(`answers.${0}.text`, question.answers[0]?.text || "");
-    setValue(
-      `answers.${1}.is_correct`,
-      question.answers[1]?.is_correct || false,
-    );
-    setValue(`answers.${1}.text`, question.answers[1]?.text || "");
-    setValue(
-      `answers.${2}.is_correct`,
-      question.answers[2]?.is_correct || false,
-    );
-    setValue(`answers.${2}.text`, question.answers[2]?.text || "");
-    setValue(
-      `answers.${3}.is_correct`,
-      question.answers[3]?.is_correct || false,
-    );
-    setValue(`answers.${3}.text`, question.answers[3]?.text || "");
+    question.answers.forEach((answer, index) => {
+      setValue(`answers.${index}.text`, answer.text || "");
+      setValue(`answers.${index}.is_correct`, answer.is_correct || false);
+    });
     setValue("module_id", question.module_id);
     setValue("id", question.id!);
   }
@@ -97,7 +80,7 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <DialogContentText sx={{ textAlign: "center", marginBottom: 1 }}>
-            {"Добавить вопрос"}
+            {question ? "Изменить вопрос" : "Добавить вопрос"}
           </DialogContentText>
           <TextareaAutosizeStyled
             minRows={10}
@@ -125,38 +108,19 @@ export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
             flexWrap: "wrap",
           }}
         >
-          <BoxOptions>
-            <TextField
-              {...register(`answers.${0}.text`)}
-              label="Ответ 1"
-              margin="dense"
-            />
-            <Checkbox {...register(`answers.${0}.is_correct`)} />
-          </BoxOptions>
-          <BoxOptions sx={{ width: "45%" }}>
-            <Checkbox {...register(`answers.${1}.is_correct`)} />
-            <TextField
-              {...register(`answers.${1}.text`)}
-              label="Ответ 2"
-              margin="dense"
-            />
-          </BoxOptions>
-          <BoxOptions sx={{ width: "45%" }}>
-            <TextField
-              {...register(`answers.${2}.text`)}
-              label="Ответ 3"
-              margin="dense"
-            />
-            <Checkbox {...register(`answers.${2}.is_correct`)} />
-          </BoxOptions>
-          <BoxOptions sx={{ width: "45%" }}>
-            <Checkbox {...register(`answers.${3}.is_correct`)} />
-            <TextField
-              {...register(`answers.${3}.text`)}
-              label="Ответ 4"
-              margin="dense"
-            />
-          </BoxOptions>
+          {Array.from({ length: 4 }, (_, index) => (
+            <BoxOptions key={index} index={index}>
+              <TextField
+                {...register(`answers.${index}.text`)}
+                label={`Ответ ${index + 1}`}
+                margin="dense"
+              />
+              <Checkbox
+                {...register(`answers.${index}.is_correct`)}
+                defaultChecked={question?.answers[index]?.is_correct || false}
+              />
+            </BoxOptions>
+          ))}
         </DialogContent>
         <DialogActions>
           <Button
@@ -184,8 +148,9 @@ const TextareaAutosizeStyled = styled(TextareaAutosize)(() => ({
   marginBottom: "8px",
 }));
 
-const BoxOptions = styled(Box)(() => ({
+const BoxOptions = styled(Box)(({ index }: { index: number }) => ({
   width: "45%",
   display: "flex",
   alignItems: "center",
+  flexDirection: index % 2 === 1 ? "row-reverse" : "row",
 }));
