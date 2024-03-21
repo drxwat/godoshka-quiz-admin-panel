@@ -5,28 +5,34 @@ import { Loader } from "./elements/loader";
 
 import questionService from "../api/services/question.service";
 import { QuestionCard } from "./question.card";
+import { QueryKeys } from "../helpers/types";
+import { AddBtn } from "./elements/addBtn";
+import { useState } from "react";
+import { QuestionWithAnswers } from "../core/client/types";
+import { AddUpdateQuestion } from "./forms/add.update.question";
 
-// type StateType = {
-//   formType?: string | null;
-//   questionId?: number | undefined;
-//   isOpen?: boolean;
-// };
-
-// type ActionType = {
-//   type: string;
-//   questionId?: number | undefined;
-//   formType?: string;
-//   isOpen?: boolean;
-// };
+interface IQuestionFormState {
+  open: boolean;
+  data?: QuestionWithAnswers;
+}
 
 const QuestionsTable = () => {
   const { moduleId } = useParams();
 
-  const { data: questions } = useFetchData("questions", () =>
-    questionService.getAllQuestionsWithAnswers(+moduleId!),
+  const { data: questions, isFetching } = useFetchData(
+    QueryKeys.questions,
+    () => questionService.getAllQuestionsWithAnswers(+moduleId!),
   );
 
-  console.log(questions);
+  const [show, setShow] = useState<IQuestionFormState>({
+    open: false,
+  });
+
+  const handleOpen = () => {
+    setShow({
+      open: true,
+    });
+  };
 
   if (!questions) {
     return <Loader />;
@@ -37,10 +43,25 @@ const QuestionsTable = () => {
       <Grid container spacing={2} direction="row" justifyContent="space-evenly">
         {questions?.map((question) => (
           <Grid item xs={12} sm={9} md={7} lg={5} key={question.id}>
-            <QuestionCard question={question} />
+            <QuestionCard
+              isFetching={isFetching}
+              question={question}
+              onEdit={() =>
+                setShow({
+                  open: true,
+                  data: question,
+                })
+              }
+            />
           </Grid>
         ))}
       </Grid>
+      <AddBtn handleOpen={handleOpen} />
+      <AddUpdateQuestion
+        open={show.open}
+        handleClose={() => setShow({ open: false })}
+        question={show.data}
+      />
     </Box>
   );
 };

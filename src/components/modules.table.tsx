@@ -1,5 +1,4 @@
-import AddIcon from "@mui/icons-material/Add";
-import { Box, Fab, Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useNavigate } from "react-router";
@@ -9,20 +8,22 @@ import { Loader } from "./elements/loader";
 import moduleService from "../api/services/module.service";
 import { useFetchData } from "../hooks/useFetchData";
 import { ModuleWithQuestions } from "../core/client/types";
+import { QueryKeys } from "../helpers/types";
+import { AddBtn } from "./elements/addBtn";
 
 const ModulesTable = () => {
   const navigate = useNavigate();
   const { data: modules } = useFetchData(
-    "modules",
+    QueryKeys.modules,
     moduleService.getAllModulesWithQuestions,
   );
 
-  interface IFormState {
+  interface IModuleFormState {
     open: boolean;
     data?: ModuleWithQuestions;
   }
 
-  const [show, setShow] = useState<IFormState>({
+  const [show, setShow] = useState<IModuleFormState>({
     open: false,
   });
 
@@ -71,18 +72,7 @@ const ModulesTable = () => {
           ))}
         </Grid>
       </Box>
-      <Fab
-        color="primary"
-        aria-label="Add Module"
-        sx={{
-          position: "fixed",
-          bottom: "16px",
-          right: "48px",
-        }}
-        onClick={handleOpen}
-      >
-        <AddIcon />
-      </Fab>
+      <AddBtn handleOpen={handleOpen} />
     </Box>
   );
 };

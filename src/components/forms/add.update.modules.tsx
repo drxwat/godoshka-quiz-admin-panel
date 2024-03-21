@@ -7,7 +7,7 @@ import {
   Button,
 } from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { ModuleInsert } from "../../helpers/types";
+import { ModuleInsert, QueryKeys } from "../../helpers/types";
 import moduleService from "../../api/services/module.service";
 import { useOptimisticAdd } from "../../hooks/useOptimisticAdd";
 import { ModuleWithQuestions } from "../../core/client/types";
@@ -24,10 +24,13 @@ export const AddModulesForm: React.FC<AddModulesFormProps> = ({
   handleClose,
   module,
 }) => {
-  const { mutate: add } = useOptimisticAdd(moduleService.add, "modules");
+  const { mutate: add } = useOptimisticAdd(
+    moduleService.add,
+    QueryKeys.modules,
+  );
   const { mutate: update } = useOptimisticUpdate(
     moduleService.update,
-    "modules",
+    QueryKeys.modules,
   );
 
   const { register, handleSubmit, setValue, reset } = useForm<ModuleInsert>();

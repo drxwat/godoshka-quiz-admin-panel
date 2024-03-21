@@ -14,6 +14,7 @@ import { parseISO } from "date-fns";
 import moduleService from "../api/services/module.service";
 import { useOptimisticUpdate } from "../hooks/useOptimisticUpdate";
 import { useOptimisticRemove } from "../hooks/useOptimisticRemove";
+import { QueryKeys } from "../helpers/types";
 
 export const ModuleCard: FC<{
   module: ModuleWithQuestions;
@@ -22,11 +23,11 @@ export const ModuleCard: FC<{
 }> = ({ module, onSelect, onEdit }) => {
   const { mutate: remove } = useOptimisticRemove(
     moduleService.remove,
-    "modules",
+    QueryKeys.modules,
   );
   const { mutate: published } = useOptimisticUpdate(
     moduleService.update,
-    "modules",
+    QueryKeys.modules,
   );
   const dateHandler = (date: string) => {
     return parseISO(date);
@@ -53,7 +54,6 @@ export const ModuleCard: FC<{
                 : "error"
             }
             onChange={() => {
-              console.log("before", module.is_published);
               published({ id: module.id, is_published: !module.is_published });
             }}
           />
