@@ -9,11 +9,11 @@ import { MainLayout } from "../components/main.layout";
 import { lazy } from "react";
 
 const ModulesTable = lazy(
-  async () => await import("../components/tables/modules.table"),
+  async () => await import("../components/modules.table"),
 );
 
 const QuestionsTable = lazy(
-  async () => await import("../components/tables/questions.table"),
+  async () => await import("../components/questions.table"),
 );
 
 export const routes = createRoutesFromElements(

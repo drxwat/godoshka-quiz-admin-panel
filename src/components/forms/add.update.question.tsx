@@ -4,117 +4,161 @@ import {
   TextField,
   DialogActions,
   Button,
-  Checkbox,
-  FormControlLabel,
   DialogContentText,
-  Box,
   TextareaAutosize,
   styled,
+  Box,
+  Checkbox,
 } from "@mui/material";
-import { useAddQuestion } from "../../hooks/useAddQuestion";
-import { QuestionWithAnswers } from "../../core/client/types";
+import {
+  QuestionUpdateWithAnswers,
+  QuestionWithAnswers,
+} from "../../core/client/types";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useOptimisticAdd } from "../../hooks/useOptimisticAdd";
+import questionService from "../../api/services/question.service";
+import { QueryKeys } from "../../helpers/types";
+import { useParams } from "react-router";
+import { useOptimisticUpdate } from "../../hooks/useOptimisticUpdate";
 
 interface AddUpdateQuestionProps {
-  formLabel: string;
-  questionId?: number;
-  onClose: (reason: "close" | "submit") => void;
-  onSubmit: (question: QuestionWithAnswers) => void;
+  open: boolean;
+  handleClose: () => void;
+  question?: QuestionWithAnswers;
 }
 
 export const AddUpdateQuestion: React.FC<AddUpdateQuestionProps> = ({
-  questionId,
-  formLabel,
-  onClose,
-  onSubmit,
+  open,
+  handleClose,
+  question,
 }) => {
-  const { question, hanldeSave, handleFieldChange, hanldeUpdate } =
-    useAddQuestion(questionId);
+  const { moduleId } = useParams();
+  const { mutate: add } = useOptimisticAdd(
+    questionService.add,
+    QueryKeys.questions,
+  );
+  const { mutate: update } = useOptimisticUpdate(
+    questionService.update,
+    QueryKeys.questions,
+  );
+  const { register, handleSubmit, setValue, reset } =
+    useForm<QuestionUpdateWithAnswers>();
+
+  if (question && question !== undefined) {
+    setValue("text", question.text || "");
+    setValue("time_to_answer", question.time_to_answer || 10);
+    setValue(
+      `answers.${0}.is_correct`,
+      question.answers[0]?.is_correct || false,
+    );
+
+    setValue(`answers.${0}.text`, question.answers[0]?.text || "");
+    setValue(
+      `answers.${1}.is_correct`,
+      question.answers[1]?.is_correct || false,
+    );
+    setValue(`answers.${1}.text`, question.answers[1]?.text || "");
+    setValue(
+      `answers.${2}.is_correct`,
+      question.answers[2]?.is_correct || false,
+    );
+    setValue(`answers.${2}.text`, question.answers[2]?.text || "");
+    setValue(
+      `answers.${3}.is_correct`,
+      question.answers[3]?.is_correct || false,
+    );
+    setValue(`answers.${3}.text`, question.answers[3]?.text || "");
+    setValue("module_id", question.module_id);
+    setValue("id", question.id!);
+  }
+
+  const onSubmit: SubmitHandler<QuestionUpdateWithAnswers> = (data) => {
+    if (data.module_id) {
+      update(data);
+      reset();
+      handleClose();
+    } else {
+      const newData = {
+        ...data,
+        module_id: +moduleId!,
+      };
+      add(newData);
+      reset();
+      handleClose();
+    }
+  };
+
   return (
-    <Dialog open={!!formLabel}>
-      <form
-        onSubmit={async () => {
-          onSubmit(question);
-          if (formLabel === "Добавить вопрос") {
-            await hanldeSave();
-          } else {
-            await hanldeUpdate();
-          }
-          onClose("submit");
-        }}
-      >
+    <Dialog open={open}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <DialogContentText sx={{ textAlign: "center", marginBottom: 1 }}>
-            {formLabel}
+            {"Добавить вопрос"}
           </DialogContentText>
           <TextareaAutosizeStyled
             minRows={10}
-            value={question.text}
-            onChange={(event) => {
-              handleFieldChange("text", event.target.value);
-            }}
+            {...register("text", {
+              required: true,
+              minLength: {
+                value: 5,
+                message: "error message",
+              },
+            })}
           />
           <TextField
-            value={question.time_to_answer}
+            {...register("time_to_answer")}
             label="Время на ответ"
-            onChange={(event) => {
-              handleFieldChange("time_to_answer", +event.target.value);
-            }}
             fullWidth
           />
         </DialogContent>
         <DialogContentText sx={{ textAlign: "center" }}>
           Варианты ответов:
         </DialogContentText>
-        <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-          {question.answers.map((answer, index) => (
-            <Box key={index} sx={{ width: "50%" }}>
-              <DialogContent>
-                <TextField
-                  label={`Ответ ${index + 1}`}
-                  fullWidth
-                  value={answer.text}
-                  onChange={(event) => {
-                    const answers = [...question.answers];
-                    answers[index] = {
-                      ...answers[index],
-                      text: event.target.value,
-                    };
-
-                    handleFieldChange("answers", answers);
-                  }}
-                />
-
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={!!answer.is_correct}
-                      onChange={(event) => {
-                        const answers = [...question.answers];
-                        answers[index] = {
-                          ...answers[index],
-                          is_correct: !!event.target.checked,
-                        };
-
-                        handleFieldChange("answers", answers);
-                      }}
-                    />
-                  }
-                  label="Верный ответ"
-                />
-              </DialogContent>
-            </Box>
-          ))}
-        </Box>
-
+        <DialogContent
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+          }}
+        >
+          <BoxOptions>
+            <TextField
+              {...register(`answers.${0}.text`)}
+              label="Ответ 1"
+              margin="dense"
+            />
+            <Checkbox {...register(`answers.${0}.is_correct`)} />
+          </BoxOptions>
+          <BoxOptions sx={{ width: "45%" }}>
+            <Checkbox {...register(`answers.${1}.is_correct`)} />
+            <TextField
+              {...register(`answers.${1}.text`)}
+              label="Ответ 2"
+              margin="dense"
+            />
+          </BoxOptions>
+          <BoxOptions sx={{ width: "45%" }}>
+            <TextField
+              {...register(`answers.${2}.text`)}
+              label="Ответ 3"
+              margin="dense"
+            />
+            <Checkbox {...register(`answers.${2}.is_correct`)} />
+          </BoxOptions>
+          <BoxOptions sx={{ width: "45%" }}>
+            <Checkbox {...register(`answers.${3}.is_correct`)} />
+            <TextField
+              {...register(`answers.${3}.text`)}
+              label="Ответ 4"
+              margin="dense"
+            />
+          </BoxOptions>
+        </DialogContent>
         <DialogActions>
-          <Button color="primary" onClick={() => onClose("close")}>
+          <Button color="primary" onClick={handleClose}>
             Отмена
           </Button>
-          <Button
-            color="primary"
-            type="submit"
-            disabled={question.text.length < 3}
-          >
+          <Button color="primary" type="submit">
             Сохранить
           </Button>
         </DialogActions>
@@ -128,4 +172,10 @@ const TextareaAutosizeStyled = styled(TextareaAutosize)(() => ({
   padding: 0,
   borderRadius: "4px",
   marginBottom: "8px",
+}));
+
+const BoxOptions = styled(Box)(() => ({
+  width: "45%",
+  display: "flex",
+  alignItems: "center",
 }));

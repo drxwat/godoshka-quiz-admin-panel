@@ -4,6 +4,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { TablesUpdate } from "../core/client/database.types";
+import { QueryKeys } from "../helpers/types";
 
 type variable =
   | TablesUpdate<"modules">
@@ -12,7 +13,7 @@ type variable =
 
 export function useOptimisticUpdate<D, V extends variable>(
   serviceFunc: MutationFunction<D, V>,
-  key: string,
+  key: QueryKeys,
 ) {
   const queryClient = useQueryClient();
 

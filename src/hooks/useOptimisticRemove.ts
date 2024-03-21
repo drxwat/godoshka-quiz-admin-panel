@@ -3,11 +3,11 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { variable } from "../helpers/types";
+import { QueryKeys, variable } from "../helpers/types";
 
 export function useOptimisticRemove<D, V extends variable>(
   updateFunc: MutationFunction<D, V>,
-  key: string,
+  key: QueryKeys,
 ) {
   const queryClient = useQueryClient();
 
