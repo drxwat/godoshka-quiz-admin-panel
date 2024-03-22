@@ -1,6 +1,5 @@
 import { Box, Grid } from "@mui/material";
 import { useParams } from "react-router";
-import { useFetchData } from "../hooks/useFetchData";
 import { Loader } from "./elements/loader";
 
 import questionService from "../api/services/question.service";
@@ -10,6 +9,7 @@ import { AddBtn } from "./elements/addBtn";
 import { useState } from "react";
 import { QuestionWithAnswers } from "../core/client/types";
 import { AddUpdateQuestion } from "./forms/add.update.question";
+import { useQuery } from "@tanstack/react-query";
 
 interface IQuestionFormState {
   open: boolean;
@@ -19,10 +19,10 @@ interface IQuestionFormState {
 const QuestionsTable = () => {
   const { moduleId } = useParams();
 
-  const { data: questions, isFetching } = useFetchData(
-    QueryKeys.questions,
-    () => questionService.getAllQuestionsWithAnswers(+moduleId!),
-  );
+  const { data: questions } = useQuery({
+    queryKey: [QueryKeys.questions, moduleId],
+    queryFn: () => questionService.getAllQuestionsWithAnswers(+moduleId!),
+  });
 
   const [show, setShow] = useState<IQuestionFormState>({
     open: false,
@@ -44,7 +44,6 @@ const QuestionsTable = () => {
         {questions?.map((question) => (
           <Grid item xs={12} sm={9} md={7} lg={5} key={question.id}>
             <QuestionCard
-              isFetching={isFetching}
               question={question}
               onEdit={() =>
                 setShow({

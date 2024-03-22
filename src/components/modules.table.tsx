@@ -6,29 +6,27 @@ import { ModuleCard } from "./module.card";
 import { AddModulesForm } from "./forms/add.update.modules";
 import { Loader } from "./elements/loader";
 import moduleService from "../api/services/module.service";
-import { useFetchData } from "../hooks/useFetchData";
 import { ModuleWithQuestions } from "../core/client/types";
 import { QueryKeys } from "../helpers/types";
 import { AddBtn } from "./elements/addBtn";
+import { useQuery } from "@tanstack/react-query";
 
 const ModulesTable = () => {
   const navigate = useNavigate();
-  const { data: modules } = useFetchData(
-    QueryKeys.modules,
-    moduleService.getAllModulesWithQuestions,
-  );
+  const { data: modules } = useQuery({
+    queryKey: [QueryKeys.modules],
+    queryFn: moduleService.getAllModulesWithQuestions,
+  });
 
-  interface IModuleFormState {
+  const [showModuleForm, setShowModuleForm] = useState<{
     open: boolean;
     data?: ModuleWithQuestions;
-  }
-
-  const [show, setShow] = useState<IModuleFormState>({
+  }>({
     open: false,
   });
 
   const handleOpen = () => {
-    setShow({
+    setShowModuleForm({
       open: true,
     });
   };
@@ -45,11 +43,13 @@ const ModulesTable = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <AddModulesForm
-            open={show.open}
-            handleClose={() => setShow({ open: false })}
-            module={show.data}
-          />
+          {showModuleForm.open && (
+            <AddModulesForm
+              handleClose={() => setShowModuleForm({ open: false })}
+              module={showModuleForm.data}
+            />
+          )}
+
           {/* <Confirm /> */}
         </motion.div>
 
@@ -62,7 +62,7 @@ const ModulesTable = () => {
                   navigate(`/questions/${module.id}`);
                 }}
                 onEdit={() => {
-                  setShow({
+                  setShowModuleForm({
                     open: true,
                     data: module,
                   });

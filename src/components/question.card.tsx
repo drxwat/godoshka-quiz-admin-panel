@@ -5,7 +5,6 @@ import {
   CardActions,
   CardContent,
   Grid,
-  LinearProgress,
   Stack,
   Typography,
 } from "@mui/material";
@@ -19,14 +18,9 @@ import optimisticActions from "../api/optimisticActions";
 interface IQuestionCard {
   question: QuestionWithAnswers;
   onEdit: () => void;
-  isFetching: boolean;
 }
 
-export const QuestionCard: React.FC<IQuestionCard> = ({
-  question,
-  onEdit,
-  isFetching,
-}) => {
+export const QuestionCard: React.FC<IQuestionCard> = ({ question, onEdit }) => {
   const { mutate: remove } = useOptimisticMutation({
     mutationKey: QueryKeys.questions,
     updateFunc: questionService.remove,
@@ -41,7 +35,6 @@ export const QuestionCard: React.FC<IQuestionCard> = ({
         justifyContent: "space-between",
       }}
     >
-      {isFetching && <LinearProgress />}
       <CardContent
         sx={{
           height: "100%",

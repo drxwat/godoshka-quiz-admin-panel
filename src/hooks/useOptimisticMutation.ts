@@ -13,14 +13,14 @@ type OptimisticMutationProps<D, V> = {
 
 export function useOptimisticMutation<D, V>({
   mutationKey,
-  updateFunc,
+  updateFunc: mutationFn,
   optimisticUpdateFn,
 }: OptimisticMutationProps<D, V>) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: [mutationKey],
-    mutationFn: async (variables: V) => await updateFunc(variables),
+    mutationFn,
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: [mutationKey] });
       const cachedData = queryClient.getQueryData([mutationKey]);

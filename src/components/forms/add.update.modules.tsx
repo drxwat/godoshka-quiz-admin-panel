@@ -14,13 +14,11 @@ import { ModuleWithQuestions } from "../../core/client/types";
 import { useOptimisticMutation } from "../../hooks/useOptimisticMutation";
 
 interface AddModulesFormProps {
-  open: boolean;
   handleClose: () => void;
   module?: ModuleWithQuestions;
 }
 
 export const AddModulesForm: React.FC<AddModulesFormProps> = ({
-  open,
   handleClose,
   module,
 }) => {
@@ -35,15 +33,15 @@ export const AddModulesForm: React.FC<AddModulesFormProps> = ({
     optimisticUpdateFn: optimisticActions.update,
   });
 
-  const { register, handleSubmit, setValue, reset } = useForm<ModuleInsert>();
-
-  if (module && module !== undefined) {
-    setValue("name", module.name);
-    setValue("description", module.description);
-    setValue("min_questions", module.min_questions);
-    setValue("quiz_question_amount", module.quiz_question_amount);
-    setValue("id", module.id);
-  }
+  const { register, handleSubmit, reset } = useForm<ModuleInsert>({
+    defaultValues: {
+      id: module?.id,
+      name: module?.name,
+      description: module?.description,
+      min_questions: module?.min_questions,
+      quiz_question_amount: module?.quiz_question_amount,
+    },
+  });
 
   const onSubmit: SubmitHandler<ModuleInsert> = (data) => {
     if (data.id) {
@@ -53,10 +51,11 @@ export const AddModulesForm: React.FC<AddModulesFormProps> = ({
       add(data);
       reset();
     }
+    handleClose();
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={true} onClose={handleClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent
           sx={{
@@ -92,7 +91,7 @@ export const AddModulesForm: React.FC<AddModulesFormProps> = ({
             {...register("quiz_question_amount")}
           />
           <DialogActions>
-            <Button color="primary" type="submit" onClick={handleClose}>
+            <Button color="primary" type="submit">
               {module ? "Изменить" : "Добавить"}
             </Button>
             <Button
